@@ -1,0 +1,17 @@
+# Prevent execution of PHP files in uploads directory
+<Files "*.php">
+    Order Deny,Allow
+    Deny from all
+</Files>
+
+# Allow only image files
+<FilesMatch "\.(jpg|jpeg|png|gif|webp)$">
+    Order Allow,Deny
+    Allow from all
+</FilesMatch>
+
+# Prevent directory browsing
+Options -Indexes
+
+# Set max file size for uploads (5MB)
+LimitRequestBody 5242880
