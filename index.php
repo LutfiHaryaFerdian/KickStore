@@ -252,12 +252,12 @@ if (isset($_SESSION['user_id'])) {
     <!-- Hero Section -->
     <section class="hero-section" id="home">
         <div class="container text-center hero-content">
-            <h1 class="display-4 mb-4">Selamat Datang di Toko Sepatu Kick</h1>
+            <h1 class="display-4 mb-4">Selamat Datang di Kick Store</h1>
             <p class="lead mb-5">Temukan sepatu yang sempurna untuk setiap kesempatan. Kualitas, kenyamanan, dan gaya di setiap langkah.</p>
             <div class="row justify-content-center">
                 <div class="col-md-8">
                     <a href="auth/register.php" class="btn btn-secondary-custom btn-lg me-3">
-                        <i class="fas fa-user-plus"></i> Mulai Belanja
+                        <i class="fas fa-user-plus"></i> Daftar Sekarang
                     </a>
                     <a href="auth/login.php" class="btn btn-outline-light btn-lg">
                         <i class="fas fa-sign-in-alt"></i> Masuk

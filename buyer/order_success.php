@@ -296,9 +296,9 @@ $order_items = $items_stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php if ($order['payment_method'] == 'bank_transfer'): ?>
                 <div class="payment-info">
                     <h5 class="fw-bold mb-3">
-                        <i class="fas fa-university"></i> Instruksi Pembayaran
+                        <i class="fas fa-university"></i> BANK
                     </h5>
-                    <p class="mb-2">Silakan transfer ke salah satu rekening berikut:</p>
+                    <p class="mb-2">daftar rekening Kick Store:</p>
                     <div class="row">
                         <div class="col-md-4">
                             <strong>Bank BCA</strong><br>
@@ -317,7 +317,7 @@ $order_items = $items_stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                     </div>
                     <p class="mt-3 mb-0 small">
-                        <strong>Penting:</strong> Setelah transfer, mohon konfirmasi pembayaran melalui WhatsApp ke 08123456789 dengan menyertakan bukti transfer dan nomor pesanan.
+                        <strong>Penting:</strong> Setelah transfer, mohon tunggu konfirmasi dari admin.
                     </p>
                 </div>
             <?php endif; ?>
@@ -329,15 +329,10 @@ $order_items = $items_stmt->fetchAll(PDO::FETCH_ASSOC);
                 </h5>
                 <ol class="text-start">
                     <?php if ($order['payment_method'] == 'bank_transfer'): ?>
-                        <li>Lakukan pembayaran sesuai instruksi di atas</li>
-                        <li>Konfirmasi pembayaran via WhatsApp</li>
                         <li>Tunggu konfirmasi dari admin</li>
                     <?php elseif ($order['payment_method'] == 'cod'): ?>
                         <li>Tunggu konfirmasi pesanan dari admin</li>
                         <li>Siapkan uang pas saat barang diantar</li>
-                    <?php else: ?>
-                        <li>Tunggu instruksi pembayaran via email/WhatsApp</li>
-                        <li>Lakukan pembayaran sesuai instruksi</li>
                     <?php endif; ?>
                     <li>Pesanan akan diproses setelah pembayaran dikonfirmasi</li>
                     <li>Barang akan dikirim dalam 1-3 hari kerja</li>

@@ -293,25 +293,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <p class="welcome-text mb-4">
                             Daftarkan diri Anda dan nikmati pengalaman berbelanja sepatu premium dengan koleksi terlengkap dan kualitas terbaik.
                         </p>
-                        
-                        <div class="features">
-                            <div class="feature-item">
-                                <i class="fas fa-shipping-fast"></i>
-                                <span>Gratis ongkir untuk pembelian di atas Rp 500.000</span>
-                            </div>
-                            <div class="feature-item">
-                                <i class="fas fa-shield-alt"></i>
-                                <span>Garansi kualitas produk</span>
-                            </div>
-                            <div class="feature-item">
-                                <i class="fas fa-headset"></i>
-                                <span>Customer service 24/7</span>
-                            </div>
-                            <div class="feature-item">
-                                <i class="fas fa-tags"></i>
-                                <span>Promo dan diskon eksklusif</span>
-                            </div>
+                        <div class="d-flex justify-content-center gap-3">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
                         </div>
+                        <p class="mt-2 mb-0 small">Dipercaya oleh ribuan pelanggan</p>
                     </div>
                 </div>
             </div>

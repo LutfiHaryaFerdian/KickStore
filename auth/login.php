@@ -342,20 +342,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <i class="fas fa-user-plus"></i> Daftar Sekarang
                         </a>
                     </div>
-                    
-                    <!-- Demo Accounts -->
-                    <div class="demo-accounts">
-                        <h6><i class="fas fa-info-circle"></i> Akun Demo</h6>
-                        <div class="demo-account" onclick="fillLogin('admin', 'admin123')">
-                            <strong>Admin</strong><br>
-                            <small>Username: admin | Password: admin123</small>
-                        </div>
-                        <div class="demo-account" onclick="fillLogin('buyer1', 'buyer123')">
-                            <strong>Pembeli</strong><br>
-                            <small>Username: buyer1 | Password: buyer123</small>
-                        </div>
-                    </div>
-
                     <div class="text-center mt-4">
                         <a href="../index.php" class="btn btn-outline-secondary">
                             <i class="fas fa-home me-2"></i>Kembali ke Beranda
