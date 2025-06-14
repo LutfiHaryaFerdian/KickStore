@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jun 14, 2025 at 07:17 PM
+-- Generation Time: Jun 14, 2025 at 07:37 PM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -175,13 +175,15 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `name`, `description`, `price`, `stock`, `category_id`, `image`, `brand`, `size`, `color`, `image_url`, `status`, `created_at`) VALUES
-(1, 'Nike Air Max', 'Comfortable running shoes', 2200000.00, 45, 1, NULL, 'Nike', '42', 'Black', 'uploads/products/6846eb620055d_1749478242.png', 'active', '2025-06-01 16:29:08'),
-(2, 'Adidas Campuss', 'Premium running shoes', 1700000.00, 25, 1, NULL, 'Adidas', '41', 'White', 'uploads/products/6846ebe8844bd_1749478376.png', 'active', '2025-06-01 16:29:08'),
+(1, 'Nike Air Max', '', 2200000.00, 45, 1, NULL, 'Nike', '42', 'Black', 'uploads/products/6846eb620055d_1749478242.png', 'active', '2025-06-01 16:29:08'),
+(2, 'Adidas Campuss', '', 1700000.00, 25, 1, NULL, 'Adidas', '41', 'White', 'uploads/products/6846ebe8844bd_1749478376.png', 'active', '2025-06-01 16:29:08'),
 (4, 'Timberland Boots', 'Durable work boots', 2000000.00, 19, 3, NULL, 'Timberland', '44', 'Brown', 'uploads/products/684dc1477c603_1749926215.png', 'active', '2025-06-01 16:29:08'),
 (6, 'Adidas Spezial', 'Sepatu Classic Adidas', 1700000.00, 87, 1, NULL, 'Adidas', '42', 'Black', 'uploads/products/6846eb2f8955e_1749478191.png', 'active', '2025-06-01 16:55:12'),
 (7, 'Adidas Samba', '', 1800000.00, 27, 1, NULL, 'Adidas', '42', 'white', 'uploads/products/6846eaed55a31_1749478125.png', 'active', '2025-06-02 03:21:35'),
 (8, 'Nike P-6000', '', 1500000.00, 47, 1, NULL, 'Nike', '42', 'Black', 'uploads/products/6846f4604b9dd_1749480544.png', 'active', '2025-06-09 14:48:16'),
-(12, 'Nike Dunk', '', 1100000.00, 47, 1, NULL, 'Nike', '42', 'Black', 'uploads/products/684dc0ee3e5cf_1749926126.png', 'active', '2025-06-14 18:35:26');
+(12, 'Nike Dunk', '', 1100000.00, 47, 1, NULL, 'Nike', '42', 'Black', 'uploads/products/684dc0ee3e5cf_1749926126.png', 'active', '2025-06-14 18:35:26'),
+(13, 'New Balance 1906 L', '', 2500000.00, 50, 2, NULL, 'New Balance', '42', 'Black', 'uploads/products/684dce5e2fa9a_1749929566.png', 'active', '2025-06-14 19:32:46'),
+(14, 'Crocs Classic Clog Lightning McQueen', '', 2200000.00, 25, 4, NULL, 'Crocs', '42', 'Merah', 'uploads/products/684dcf1379bcb_1749929747.png', 'active', '2025-06-14 19:35:47');
 
 -- --------------------------------------------------------
 
@@ -306,7 +308,7 @@ ALTER TABLE `payment_proofs`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `users`
