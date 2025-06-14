@@ -10,230 +10,213 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'buyer') {
 $database = new Database();
 $db = $database->getConnection();
 
-$user_id = $_SESSION['user_id'];
-
-// Get user data
-$query = "SELECT * FROM users WHERE id = ?";
-$stmt = $db->prepare($query);
-$stmt->execute([$user_id]);
-$user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-// Get cart count
-$cart_query = "SELECT COUNT(*) as count FROM cart WHERE user_id = ?";
-$cart_stmt = $db->prepare($cart_query);
-$cart_stmt->execute([$user_id]);
-$cart_count = $cart_stmt->fetch(PDO::FETCH_ASSOC)['count'];
-
-// Get order count
-$order_query = "SELECT COUNT(*) as count FROM orders WHERE user_id = ?";
-$order_stmt = $db->prepare($order_query);
-$order_stmt->execute([$user_id]);
-$order_count = $order_stmt->fetch(PDO::FETCH_ASSOC)['count'];
-
-// Handle form submission
 $success = '';
 $error = '';
 
+// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $full_name = trim($_POST['full_name']);
+    $email = trim($_POST['email']);
+    $phone = trim($_POST['phone']);
+    $address = trim($_POST['address']);
+    $current_password = $_POST['current_password'] ?? '';
+    $new_password = $_POST['new_password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
+    
     try {
-        $full_name = trim($_POST['full_name'] ?? '');
-        $email = trim($_POST['email'] ?? '');
-        $phone = trim($_POST['phone'] ?? '');
-        $address = trim($_POST['address'] ?? '');
-        $current_password = $_POST['current_password'] ?? '';
-        $new_password = $_POST['new_password'] ?? '';
-        $confirm_password = $_POST['confirm_password'] ?? '';
-        
-        // Validation
-        if (empty($full_name)) {
-            throw new Exception("Full name is required");
-        }
-        
-        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new Exception("Valid email is required");
-        }
-        
-        // Check if email already exists (for another user)
-        $email_check_query = "SELECT id FROM users WHERE email = ? AND id != ?";
-        $email_check_stmt = $db->prepare($email_check_query);
-        $email_check_stmt->execute([$email, $user_id]);
-        if ($email_check_stmt->rowCount() > 0) {
-            throw new Exception("Email already in use by another account");
-        }
-        
-        // Start building the update query
-        $update_fields = [];
-        $params = [];
-        
-        $update_fields[] = "full_name = ?";
-        $params[] = $full_name;
-        
-        $update_fields[] = "email = ?";
-        $params[] = $email;
-        
-        $update_fields[] = "phone = ?";
-        $params[] = $phone;
-        
-        $update_fields[] = "address = ?";
-        $params[] = $address;
-        
-        // Handle password change if requested
-        if (!empty($current_password) || !empty($new_password) || !empty($confirm_password)) {
-            // All password fields must be filled
-            if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
-                throw new Exception("All password fields are required to change password");
-            }
+        // Update basic info
+        if (!empty($full_name) && !empty($email)) {
+            $update_query = "UPDATE users SET full_name = ?, email = ?, phone = ?, address = ? WHERE id = ?";
+            $update_stmt = $db->prepare($update_query);
+            $update_stmt->execute([$full_name, $email, $phone, $address, $_SESSION['user_id']]);
             
-            // Verify current password
-            $password_check_query = "SELECT password FROM users WHERE id = ?";
-            $password_check_stmt = $db->prepare($password_check_query);
-            $password_check_stmt->execute([$user_id]);
-            $current_hash = $password_check_stmt->fetchColumn();
-            
-            if (!password_verify($current_password, $current_hash)) {
-                throw new Exception("Current password is incorrect");
-            }
-            
-            // Validate new password
-            if (strlen($new_password) < 6) {
-                throw new Exception("New password must be at least 6 characters");
-            }
-            
-            if ($new_password !== $confirm_password) {
-                throw new Exception("New passwords do not match");
-            }
-            
-            // Add password to update fields
-            $update_fields[] = "password = ?";
-            $params[] = password_hash($new_password, PASSWORD_DEFAULT);
-        }
-        
-        // Add user_id to params
-        $params[] = $user_id;
-        
-        // Build and execute the update query
-        $update_query = "UPDATE users SET " . implode(", ", $update_fields) . " WHERE id = ?";
-        $update_stmt = $db->prepare($update_query);
-        
-        if ($update_stmt->execute($params)) {
-            $success = "Profile updated successfully!";
-            
-            // Update session data
             $_SESSION['full_name'] = $full_name;
-            $_SESSION['email'] = $email;
+            $success = "Profil berhasil diperbarui!";
+        }
+        
+        // Update password if provided
+        if (!empty($current_password) && !empty($new_password)) {
+            // Verify current password
+            $pass_query = "SELECT password FROM users WHERE id = ?";
+            $pass_stmt = $db->prepare($pass_query);
+            $pass_stmt->execute([$_SESSION['user_id']]);
+            $user_data = $pass_stmt->fetch(PDO::FETCH_ASSOC);
             
-            // Refresh user data
-            $stmt->execute([$user_id]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        } else {
-            throw new Exception("Failed to update profile");
+            if (password_verify($current_password, $user_data['password'])) {
+                if ($new_password === $confirm_password) {
+                    $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+                    $pass_update_query = "UPDATE users SET password = ? WHERE id = ?";
+                    $pass_update_stmt = $db->prepare($pass_update_query);
+                    $pass_update_stmt->execute([$hashed_password, $_SESSION['user_id']]);
+                    
+                    $success = "Profil dan kata sandi berhasil diperbarui!";
+                } else {
+                    $error = "Konfirmasi kata sandi tidak cocok!";
+                }
+            } else {
+                $error = "Kata sandi saat ini salah!";
+            }
         }
         
     } catch (Exception $e) {
-        $error = $e->getMessage();
+        $error = "Terjadi kesalahan: " . $e->getMessage();
     }
 }
+
+// Get user data
+$user_query = "SELECT * FROM users WHERE id = ?";
+$user_stmt = $db->prepare($user_query);
+$user_stmt->execute([$_SESSION['user_id']]);
+$user = $user_stmt->fetch(PDO::FETCH_ASSOC);
+
+// Get user statistics
+$stats_query = "SELECT 
+    COUNT(*) as total_orders,
+    SUM(CASE WHEN payment_status = 'paid' THEN total_amount ELSE 0 END) as total_spent
+    FROM orders WHERE user_id = ?";
+$stats_stmt = $db->prepare($stats_query);
+$stats_stmt->execute([$_SESSION['user_id']]);
+$stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - Kick Store</title>
+    <title>Profil Saya - Toko Sepatu Kick</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .hero-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 60px 0;
-            margin-bottom: 40px;
-            border-radius: 0 0 50px 50px;
+        * {
+            font-family: 'Poppins', sans-serif;
         }
         
-        .profile-section {
+        body {
+            background: linear-gradient(135deg, #FEFEFE 0%, #F5DEB3 100%);
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #A0522D 0%, #8B4513 100%) !important;
+            box-shadow: 0 2px 20px rgba(160, 82, 45, 0.3);
+        }
+        
+        .profile-container {
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(210, 180, 140, 0.2);
             padding: 30px;
-            margin-bottom: 30px;
+            margin: 30px 0;
         }
         
         .profile-header {
-            display: flex;
-            align-items: center;
+            background: linear-gradient(135deg, #F5DEB3 0%, #D2B48C 100%);
+            border-radius: 15px;
+            padding: 30px;
             margin-bottom: 30px;
+            text-align: center;
+            color: #A0522D;
         }
         
         .profile-avatar {
             width: 100px;
             height: 100px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #CD853F 0%, #A0522D 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0 auto 20px;
             color: white;
             font-size: 2.5rem;
-            margin-right: 20px;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 30px rgba(210, 180, 140, 0.3);
         }
         
         .stats-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #D2B48C 0%, #CD853F 100%);
             border-radius: 15px;
             padding: 20px;
-            margin-bottom: 20px;
+            color: white;
             text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #F5DEB3;
+            border-radius: 10px;
+            padding: 12px 15px;
             transition: all 0.3s ease;
         }
         
-        .stats-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-        
-        .stats-icon {
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-        
-        .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        .form-control:focus, .form-select:focus {
+            border-color: #D2B48C;
+            box-shadow: 0 0 0 0.2rem rgba(210, 180, 140, 0.25);
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #D2B48C 0%, #CD853F 100%);
             border: none;
-            border-radius: 50px;
-            padding: 10px 30px;
+            border-radius: 10px;
+            padding: 12px 25px;
             font-weight: 600;
             transition: all 0.3s ease;
         }
         
         .btn-primary:hover {
+            background: linear-gradient(135deg, #CD853F 0%, #A0522D 100%);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            box-shadow: 0 5px 15px rgba(210, 180, 140, 0.4);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid #D2B48C;
+            color: #A0522D;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, #D2B48C 0%, #CD853F 100%);
+            border-color: #CD853F;
+            color: white;
+        }
+        
+        .section-title {
+            color: #A0522D;
+            border-bottom: 2px solid #F5DEB3;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .breadcrumb {
+            background: transparent;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        
+        .breadcrumb-item a {
+            color: #A0522D;
+            text-decoration: none;
+        }
+        
+        .breadcrumb-item.active {
+            color: #CD853F;
         }
         
         .password-section {
-            border-top: 1px solid #dee2e6;
-            padding-top: 30px;
+            background: #FEFEFE;
+            border: 2px solid #F5DEB3;
+            border-radius: 15px;
+            padding: 25px;
             margin-top: 30px;
-        }
-        
-        .required {
-            color: #dc3545;
         }
     </style>
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand fw-bold" href="index.php">
                 <i class="fas fa-shoe-prints"></i> Kick Store
@@ -244,39 +227,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </button>
             
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="index.php">
-                            <i class="fas fa-home"></i> Home
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="cart.php">
-                            <i class="fas fa-shopping-cart"></i> Cart
-                            <?php if ($cart_count > 0): ?>
-                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                    <?php echo $cart_count; ?>
-                                </span>
-                            <?php endif; ?>
+                            <i class="fas fa-home"></i> Beranda
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="orders.php">
-                            <i class="fas fa-list"></i> My Orders
+                            <i class="fas fa-shopping-bag"></i> Pesanan Saya
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="cart.php">
+                            <i class="fas fa-shopping-cart"></i> Keranjang
                         </a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user"></i> <?php echo htmlspecialchars($_SESSION['full_name']); ?>
+                            <i class="fas fa-user"></i> <?php echo $_SESSION['full_name']; ?>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item active" href="profile.php">
-                                <i class="fas fa-user-edit"></i> Profile
-                            </a></li>
+                            <li><a class="dropdown-item active" href="profile.php"><i class="fas fa-user-edit"></i> Profil</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="../auth/logout.php">
-                                <i class="fas fa-sign-out-alt"></i> Logout
-                            </a></li>
+                            <li><a class="dropdown-item" href="../auth/logout.php"><i class="fas fa-sign-out-alt"></i> Keluar</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -284,200 +261,165 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <div class="hero-section">
-        <div class="container text-center">
-            <h1 class="display-4 fw-bold mb-3">
-                <i class="fas fa-user-circle"></i> My Profile
-            </h1>
-            <p class="lead">Manage your account information</p>
-        </div>
-    </div>
-
-    <!-- Alert Messages -->
-    <?php if (!empty($success)): ?>
-        <div class="container">
-            <div class="alert alert-success alert-dismissible fade show">
-                <i class="fas fa-check-circle"></i> <?php echo htmlspecialchars($success); ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        </div>
-    <?php endif; ?>
-
-    <?php if (!empty($error)): ?>
-        <div class="container">
-            <div class="alert alert-danger alert-dismissible fade show">
-                <i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error); ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        </div>
-    <?php endif; ?>
-
     <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mt-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="index.php">Beranda</a></li>
+                <li class="breadcrumb-item active">Profil Saya</li>
+            </ol>
+        </nav>
+
         <div class="row">
-            <!-- Profile Information -->
-            <div class="col-lg-8">
-                <div class="profile-section">
+            <!-- Profile Info -->
+            <div class="col-lg-4">
+                <div class="profile-container">
                     <div class="profile-header">
                         <div class="profile-avatar">
                             <i class="fas fa-user"></i>
                         </div>
-                        <div>
-                            <h3 class="fw-bold mb-1"><?php echo htmlspecialchars($user['full_name']); ?></h3>
-                            <p class="text-muted mb-0">
-                                <i class="fas fa-envelope"></i> <?php echo htmlspecialchars($user['email']); ?>
-                            </p>
-                            <p class="text-muted mb-0">
-                                <i class="fas fa-calendar"></i> Member since <?php echo date('F Y', strtotime($user['created_at'])); ?>
-                            </p>
-                        </div>
+                        <h4 class="fw-bold"><?php echo htmlspecialchars($user['full_name']); ?></h4>
+                        <p class="mb-0"><?php echo htmlspecialchars($user['email']); ?></p>
+                        <small class="text-muted">
+                            Bergabung sejak <?php echo date('M Y', strtotime($user['created_at'])); ?>
+                        </small>
                     </div>
                     
-                    <form method="POST" action="profile.php" id="profileForm">
-                        <h4 class="mb-4"><i class="fas fa-user-edit"></i> Personal Information</h4>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="stats-card">
+                                <h4 class="fw-bold"><?php echo $stats['total_orders']; ?></h4>
+                                <small>Total Pesanan</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stats-card">
+                                <h4 class="fw-bold">Rp <?php echo number_format($stats['total_spent'] ?? 0, 0, ',', '.'); ?></h4>
+                                <small>Total Belanja</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Profile Form -->
+            <div class="col-lg-8">
+                <div class="profile-container">
+                    <?php if (!empty($success)): ?>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> <?php echo $success; ?>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($error)): ?>
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle"></i> <?php echo $error; ?>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <form method="POST">
+                        <h4 class="section-title">
+                            <i class="fas fa-user-edit"></i> Informasi Profil
+                        </h4>
                         
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Full Name <span class="required">*</span></label>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nama Lengkap *</label>
                                 <input type="text" class="form-control" name="full_name" value="<?php echo htmlspecialchars($user['full_name']); ?>" required>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Email <span class="required">*</span></label>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email *</label>
                                 <input type="email" class="form-control" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required>
                             </div>
                         </div>
                         
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Phone Number</label>
-                                <input type="tel" class="form-control" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nomor Telepon</label>
+                                <input type="text" class="form-control" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" placeholder="Contoh: 08123456789">
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Role</label>
-                                <input type="text" class="form-control" value="<?php echo ucfirst(htmlspecialchars($user['role'])); ?>" readonly>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Username</label>
+                                <input type="text" class="form-control" value="<?php echo htmlspecialchars($user['username']); ?>" readonly>
+                                <small class="text-muted">Username tidak dapat diubah</small>
                             </div>
                         </div>
                         
-                        <div class="mb-4">
-                            <label class="form-label">Address</label>
-                            <textarea class="form-control" name="address" rows="3"><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
-                            <div class="form-text">This address will be used as your default shipping address</div>
+                        <div class="mb-3">
+                            <label class="form-label">Alamat</label>
+                            <textarea class="form-control" name="address" rows="3" placeholder="Masukkan alamat lengkap Anda..."><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
                         </div>
                         
+                        <!-- Password Section -->
                         <div class="password-section">
-                            <h4 class="mb-4"><i class="fas fa-lock"></i> Change Password</h4>
-                            <p class="text-muted mb-3">Leave these fields empty if you don't want to change your password</p>
+                            <h5 class="section-title">
+                                <i class="fas fa-lock"></i> Ubah Kata Sandi
+                            </h5>
+                            <p class="text-muted small mb-3">Kosongkan jika tidak ingin mengubah kata sandi</p>
                             
-                            <div class="row mb-3">
-                                <div class="col-md-4">
-                                    <label class="form-label">Current Password</label>
-                                    <input type="password" class="form-control" name="current_password">
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Kata Sandi Saat Ini</label>
+                                    <input type="password" class="form-control" name="current_password" placeholder="Masukkan kata sandi saat ini">
                                 </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">New Password</label>
-                                    <input type="password" class="form-control" name="new_password" minlength="6">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Kata Sandi Baru</label>
+                                    <input type="password" class="form-control" name="new_password" placeholder="Masukkan kata sandi baru">
                                 </div>
-                                <div class="col-md-4">
-                                    <label class="form-label">Confirm New Password</label>
-                                    <input type="password" class="form-control" name="confirm_password">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Konfirmasi Kata Sandi</label>
+                                    <input type="password" class="form-control" name="confirm_password" placeholder="Konfirmasi kata sandi baru">
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="index.php" class="btn btn-outline-primary">
+                                <i class="fas fa-arrow-left"></i> Kembali ke Beranda
+                            </a>
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Save Changes
+                                <i class="fas fa-save"></i> Simpan Perubahan
                             </button>
                         </div>
                     </form>
                 </div>
             </div>
-            
-            <!-- Account Stats -->
-            <div class="col-lg-4">
-                <div class="profile-section">
-                    <h4 class="mb-4"><i class="fas fa-chart-bar"></i> Account Statistics</h4>
-                    
-                    <div class="stats-card">
-                        <div class="stats-icon">
-                            <i class="fas fa-shopping-bag"></i>
-                        </div>
-                        <h3 class="fw-bold mb-0"><?php echo $order_count; ?></h3>
-                        <p class="mb-0">Orders Placed</p>
-                    </div>
-                    
-                    <div class="stats-card">
-                        <div class="stats-icon">
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
-                        <h3 class="fw-bold mb-0"><?php echo $cart_count; ?></h3>
-                        <p class="mb-0">Items in Cart</p>
-                    </div>
-                    
-                    <div class="mt-4">
-                        <h5 class="mb-3"><i class="fas fa-link"></i> Quick Links</h5>
-                        <div class="list-group">
-                            <a href="orders.php" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                                <span><i class="fas fa-list text-primary me-2"></i> My Orders</span>
-                                <span class="badge bg-primary rounded-pill"><?php echo $order_count; ?></span>
-                            </a>
-                            <a href="cart.php" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                                <span><i class="fas fa-shopping-cart text-success me-2"></i> My Cart</span>
-                                <span class="badge bg-success rounded-pill"><?php echo $cart_count; ?></span>
-                            </a>
-                            <a href="../auth/logout.php" class="list-group-item list-group-item-action">
-                                <i class="fas fa-sign-out-alt text-danger me-2"></i> Logout
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-white py-5 mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5><i class="fas fa-shoe-prints"></i> Kick Store</h5>
-                    <p class="text-muted">Your trusted partner for quality footwear.</p>
-                </div>
-                <div class="col-md-6 text-end">
-                    <p class="text-muted">© 2024 Kick Store. All rights reserved.</p>
-                </div>
-            </div>
-        </div>
-    </footer>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Form validation
-        document.getElementById('profileForm').addEventListener('submit', function(e) {
+        // Password validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const currentPassword = document.querySelector('input[name="current_password"]').value;
             const newPassword = document.querySelector('input[name="new_password"]').value;
             const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
-            const currentPassword = document.querySelector('input[name="current_password"]').value;
             
-            // Check if any password field is filled
-            if (newPassword || confirmPassword || currentPassword) {
-                // Check if all password fields are filled
-                if (!newPassword || !confirmPassword || !currentPassword) {
+            // If any password field is filled, all must be filled
+            if (currentPassword || newPassword || confirmPassword) {
+                if (!currentPassword) {
                     e.preventDefault();
-                    alert('All password fields are required to change your password');
+                    alert('Masukkan kata sandi saat ini');
                     return;
                 }
-                
-                // Check if passwords match
+                if (!newPassword) {
+                    e.preventDefault();
+                    alert('Masukkan kata sandi baru');
+                    return;
+                }
+                if (!confirmPassword) {
+                    e.preventDefault();
+                    alert('Konfirmasi kata sandi baru');
+                    return;
+                }
                 if (newPassword !== confirmPassword) {
                     e.preventDefault();
-                    alert('New passwords do not match');
+                    alert('Konfirmasi kata sandi tidak cocok');
                     return;
                 }
-                
-                // Check password length
                 if (newPassword.length < 6) {
                     e.preventDefault();
-                    alert('New password must be at least 6 characters');
+                    alert('Kata sandi baru minimal 6 karakter');
                     return;
                 }
             }

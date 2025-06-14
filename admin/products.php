@@ -152,7 +152,7 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Products Management - Admin</title>
+    <title>Kelola Produk - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -246,9 +246,9 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="col-md-10">
                 <div class="container-fluid mt-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2><i class="fas fa-box"></i> Products Management</h2>
+                        <h2><i class="fas fa-box"></i> Kelola Produk</h2>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
-                            <i class="fas fa-plus"></i> Add Product
+                            <i class="fas fa-plus"></i> Tambah Produk
                         </button>
                     </div>
                     
@@ -269,16 +269,16 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                     <!-- Products Table -->
                     <div class="card shadow">
                         <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0"><i class="fas fa-list"></i> Product List</h5>
+                            <h5 class="mb-0"><i class="fas fa-list"></i> Daftar Produk</h5>
                         </div>
                         <div class="card-body">
                             <?php if (empty($products)): ?>
                                 <div class="text-center py-5">
                                     <i class="fas fa-box-open fa-4x text-muted mb-3"></i>
-                                    <h4>No Products Found</h4>
+                                    <h4>Tidak Ada Produk</h4>
                                     <p class="text-muted">Start by adding your first product to the inventory.</p>
                                     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal">
-                                        <i class="fas fa-plus"></i> Add First Product
+                                        <i class="fas fa-plus"></i> Tambah Produk Pertama
                                     </button>
                                 </div>
                             <?php else: ?>
@@ -286,14 +286,14 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <table class="table table-hover">
                                         <thead class="table-light">
                                             <tr>
-                                                <th>Image</th>
+                                                <th>Gambar</th>
                                                 <th>ID</th>
-                                                <th>Product Details</th>
-                                                <th>Category</th>
-                                                <th>Price</th>
-                                                <th>Stock</th>
+                                                <th>Detail Produk</th>
+                                                <th>Kategori</th>
+                                                <th>Harga</th>
+                                                <th>Stok</th>
                                                 <th>Status</th>
-                                                <th>Actions</th>
+                                                <th>Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -322,7 +322,7 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     <td>
                                                         <span class="badge bg-secondary"><?php echo htmlspecialchars($product['category_name'] ?? 'No Category'); ?></span>
                                                     </td>
-                                                    <td><strong>$<?php echo number_format($product['price'], 2); ?></strong></td>
+                                                    <td><strong>Rp <?php echo number_format($product['price'], 2); ?></strong></td>
                                                     <td>
                                                         <span class="badge bg-<?php echo $product['stock'] > 10 ? 'success' : ($product['stock'] > 0 ? 'warning' : 'danger'); ?>">
                                                             <?php echo $product['stock']; ?> units
@@ -365,7 +365,7 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title"><i class="fas fa-plus"></i> Add New Product</h5>
+                    <h5 class="modal-title"><i class="fas fa-plus"></i> Tambah Produk Baru</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="POST" enctype="multipart/form-data" id="addProductForm">
@@ -374,7 +374,7 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                         
                         <!-- Product Image Upload -->
                         <div class="mb-4">
-                            <label class="form-label"><i class="fas fa-image"></i> Product Image</label>
+                            <label class="form-label"><i class="fas fa-image"></i> Gambar Produk</label>
                             <div class="upload-area" id="uploadArea">
                                 <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
                                 <p class="mb-2">Click to upload or drag and drop</p>
@@ -392,39 +392,39 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label"><i class="fas fa-tag"></i> Product Name *</label>
+                                    <label class="form-label"><i class="fas fa-tag"></i> Nama Produk *</label>
                                     <input type="text" class="form-control" name="name" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label"><i class="fas fa-copyright"></i> Brand *</label>
+                                    <label class="form-label"><i class="fas fa-copyright"></i> Merek *</label>
                                     <input type="text" class="form-control" name="brand" required>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label"><i class="fas fa-align-left"></i> Description</label>
+                            <label class="form-label"><i class="fas fa-align-left"></i> Deskripsi</label>
                             <textarea class="form-control" name="description" rows="3" placeholder="Product description (optional)"></textarea>
                         </div>
                         
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label class="form-label"><i class="fas fa-dollar-sign"></i> Price *</label>
+                                    <label class="form-label"><i class="fas fa-dollar-sign"></i> Harga *</label>
                                     <input type="number" step="0.01" min="0" class="form-control" name="price" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label class="form-label"><i class="fas fa-boxes"></i> Stock *</label>
+                                    <label class="form-label"><i class="fas fa-boxes"></i> Stok *</label>
                                     <input type="number" min="0" class="form-control" name="stock" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label class="form-label"><i class="fas fa-list"></i> Category *</label>
+                                    <label class="form-label"><i class="fas fa-list"></i> Kategori *</label>
                                     <select class="form-select" name="category_id" required>
                                         <option value="">Select Category</option>
                                         <?php foreach ($categories as $category): ?>
@@ -438,13 +438,13 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label"><i class="fas fa-ruler"></i> Size *</label>
+                                    <label class="form-label"><i class="fas fa-ruler"></i> Ukuran *</label>
                                     <input type="text" class="form-control" name="size" placeholder="e.g., 42, 8.5, M" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label"><i class="fas fa-palette"></i> Color *</label>
+                                    <label class="form-label"><i class="fas fa-palette"></i> Warna *</label>
                                     <input type="text" class="form-control" name="color" placeholder="e.g., Black, White, Red" required>
                                 </div>
                             </div>
@@ -452,10 +452,10 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="fas fa-times"></i> Cancel
+                            <i class="fas fa-times"></i> Batal
                         </button>
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Add Product
+                            <i class="fas fa-save"></i> Tambah Produk
                         </button>
                     </div>
                 </form>
@@ -468,7 +468,7 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-warning text-dark">
-                    <h5 class="modal-title"><i class="fas fa-edit"></i> Edit Product</h5>
+                    <h5 class="modal-title"><i class="fas fa-edit"></i> Edit Produk</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="POST" enctype="multipart/form-data" id="editProductForm">
@@ -479,7 +479,7 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                         
                         <!-- Current Image Display -->
                         <div class="mb-4">
-                            <label class="form-label"><i class="fas fa-image"></i> Product Image</label>
+                            <label class="form-label"><i class="fas fa-image"></i> Gambar Produk</label>
                             <div id="currentImageDisplay" class="mb-3">
                                 <p class="mb-2">Current Image:</p>
                                 <img id="currentImage" class="product-image-preview" style="display: none;" alt="Current Image">
@@ -507,39 +507,39 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label"><i class="fas fa-tag"></i> Product Name *</label>
+                                    <label class="form-label"><i class="fas fa-tag"></i> Nama Produk *</label>
                                     <input type="text" class="form-control" name="name" id="edit_name" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label"><i class="fas fa-copyright"></i> Brand *</label>
+                                    <label class="form-label"><i class="fas fa-copyright"></i> Merek *</label>
                                     <input type="text" class="form-control" name="brand" id="edit_brand" required>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label"><i class="fas fa-align-left"></i> Description</label>
+                            <label class="form-label"><i class="fas fa-align-left"></i> Deskripsi</label>
                             <textarea class="form-control" name="description" id="edit_description" rows="3"></textarea>
                         </div>
                         
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label class="form-label"><i class="fas fa-dollar-sign"></i> Price *</label>
+                                    <label class="form-label"><i class="fas fa-dollar-sign"></i> Harga *</label>
                                     <input type="number" step="0.01" min="0" class="form-control" name="price" id="edit_price" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label class="form-label"><i class="fas fa-boxes"></i> Stock *</label>
+                                    <label class="form-label"><i class="fas fa-boxes"></i> Stok *</label>
                                     <input type="number" min="0" class="form-control" name="stock" id="edit_stock" required>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    <label class="form-label"><i class="fas fa-list"></i> Category *</label>
+                                    <label class="form-label"><i class="fas fa-list"></i> Kategori *</label>
                                     <select class="form-select" name="category_id" id="edit_category_id" required>
                                         <option value="">Select Category</option>
                                         <?php foreach ($categories as $category): ?>
@@ -553,13 +553,13 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label"><i class="fas fa-ruler"></i> Size *</label>
+                                    <label class="form-label"><i class="fas fa-ruler"></i> Ukuran *</label>
                                     <input type="text" class="form-control" name="size" id="edit_size" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    <label class="form-label"><i class="fas fa-palette"></i> Color *</label>
+                                    <label class="form-label"><i class="fas fa-palette"></i> Warna *</label>
                                     <input type="text" class="form-control" name="color" id="edit_color" required>
                                 </div>
                             </div>
@@ -567,10 +567,10 @@ $categories = $cat_stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="fas fa-times"></i> Cancel
+                            <i class="fas fa-times"></i> Batal
                         </button>
                         <button type="submit" class="btn btn-warning">
-                            <i class="fas fa-save"></i> Update Product
+                            <i class="fas fa-save"></i> Perbarui Produk
                         </button>
                     </div>
                 </form>

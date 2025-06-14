@@ -87,7 +87,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Users Management - Admin</title>
+    <title>Kelola Pengguna - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -136,7 +136,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <!-- Main Content -->
             <div class="col-md-10">
                 <div class="container-fluid mt-4">
-                    <h2>Users Management</h2>
+                    <h2>Kelola Pengguna</h2>
                     
                     <?php if (isset($success)): ?>
                         <div class="alert alert-success"><?php echo $success; ?></div>
@@ -151,10 +151,10 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="card-body">
                             <form method="GET" class="row g-3">
                                 <div class="col-md-3">
-                                    <label class="form-label">Role</label>
+                                    <label class="form-label">Peran</label>
                                     <select name="role" class="form-select">
-                                        <option value="">All Roles</option>
-                                        <option value="buyer" <?php echo $role_filter == 'buyer' ? 'selected' : ''; ?>>Buyer</option>
+                                        <option value="">Semua Peran</option>
+                                        <option value="buyer" <?php echo $role_filter == 'buyer' ? 'selected' : ''; ?>>Pembeli</option>
                                         <option value="admin" <?php echo $role_filter == 'admin' ? 'selected' : ''; ?>>Admin</option>
                                     </select>
                                 </div>
@@ -178,14 +178,14 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <thead>
                                         <tr>
                                             <th>ID</th>
-                                            <th>Username</th>
-                                            <th>Full Name</th>
+                                            <th>Nama Pengguna</th>
+                                            <th>Nama Lengkap</th>
                                             <th>Email</th>
-                                            <th>Phone</th>
-                                            <th>Role</th>
-                                            <th>Orders</th>
-                                            <th>Joined</th>
-                                            <th>Actions</th>
+                                            <th>Telepon</th>
+                                            <th>Peran</th>
+                                            <th>Pesanan</th>
+                                            <th>Bergabung</th>
+                                            <th>Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -245,7 +245,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Update User Role</h5>
+                    <h5 class="modal-title">Perbarui Peran Pengguna</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="POST">
@@ -259,9 +259,9 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label">Role</label>
+                            <label class="form-label">Peran</label>
                             <select name="role" class="form-select" id="update_role_select" required>
-                                <option value="buyer">Buyer</option>
+                                <option value="buyer">Pembeli</option>
                                 <option value="admin">Admin</option>
                             </select>
                         </div>
@@ -273,7 +273,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Update Role</button>
+                        <button type="submit" class="btn btn-primary">Perbarui Peran</button>
                     </div>
                 </form>
             </div>

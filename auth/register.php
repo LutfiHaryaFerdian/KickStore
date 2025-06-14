@@ -1,7 +1,8 @@
 <?php
 session_start();
+require_once '../config/database.php';
 
-// Redirect if user is already logged in
+// Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['role'] == 'admin') {
         header("Location: ../admin/dashboard.php");
@@ -10,8 +11,6 @@ if (isset($_SESSION['user_id'])) {
     }
     exit();
 }
-
-require_once '../config/database.php';
 
 $error = '';
 $success = '';
@@ -22,62 +21,49 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = trim($_POST['email']);
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
-    $phone = trim($_POST['phone']);
-    $address = trim($_POST['address']);
-    
-    // Debug: tampilkan data yang diterima
-    error_log("Registration attempt - Full Name: $full_name, Username: $username, Email: $email");
     
     // Validation
-    if (empty($full_name)) {
-        $error = "Full name is required";
-    } elseif (empty($username)) {
-        $error = "Username is required";
-    } elseif (empty($password)) {
-        $error = "Password is required";
-    } elseif (empty($confirm_password)) {
-        $error = "Please confirm your password";
+    if (empty($full_name) || empty($username) || empty($email) || empty($password)) {
+        $error = "Semua field harus diisi!";
     } elseif ($password !== $confirm_password) {
-        $error = "Passwords do not match";
+        $error = "Konfirmasi password tidak cocok!";
+    } elseif (strlen($password) < 6) {
+        $error = "Password minimal 6 karakter!";
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = "Format email tidak valid!";
     } else {
-        try {
-            $database = new Database();
-            $db = $database->getConnection();
+        $database = new Database();
+        $db = $database->getConnection();
+        
+        // Check if username or email already exists
+        $check_query = "SELECT * FROM users WHERE username = ? OR email = ?";
+        $check_stmt = $db->prepare($check_query);
+        $check_stmt->execute([$username, $email]);
+        
+        if ($check_stmt->rowCount() > 0) {
+            $error = "Username atau email sudah digunakan!";
+        } else {
+            // Insert new user
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $insert_query = "INSERT INTO users (full_name, username, email, password, role, created_at) VALUES (?, ?, ?, ?, 'buyer', NOW())";
+            $insert_stmt = $db->prepare($insert_query);
             
-            // Check if username already exists (using email field for username)
-            $check_query = "SELECT id FROM users WHERE email = ?";
-            $check_stmt = $db->prepare($check_query);
-            $check_stmt->execute([$username]);
-            
-            if ($check_stmt->rowCount() > 0) {
-                $error = "Username is already taken";
+            if ($insert_stmt->execute([$full_name, $username, $email, $hashed_password])) {
+                $success = "Pendaftaran berhasil! Silakan login dengan akun Anda.";
             } else {
-                // Hash password
-                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-                $insert_query = "INSERT INTO users (username, email, password, full_name, phone, address, role, created_at) VALUES (?, ?, ?, ?, ?, ?, 'buyer', NOW())";
-                $insert_stmt = $db->prepare($insert_query);
-
-                if ($insert_stmt->execute([$username, $email, $hashed_password, $full_name, $phone, $address])) {
-                    $success = "Registration successful! You can now login.";
-                } else {
-                    $error = "Registration failed!";
-                }
+                $error = "Terjadi kesalahan saat mendaftar. Silakan coba lagi.";
             }
-        } catch (Exception $e) {
-            $error = "Registration failed: " . $e->getMessage();
-            error_log("Registration error: " . $e->getMessage());
         }
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Kick Store</title>
+    <title>Daftar - Toko Sepatu Kick</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -87,277 +73,322 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #F5DEB3 0%, #D2B48C 100%);
             min-height: 100vh;
-            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0;
         }
         
         .register-container {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 40px rgba(210, 180, 140, 0.3);
             overflow: hidden;
-            max-width: 500px;
+            max-width: 1000px;
             width: 100%;
-            position: relative;
+            margin: 20px;
         }
         
-        .register-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .register-left {
+            background: linear-gradient(135deg, #A0522D 0%, #8B4513 100%);
             color: white;
-            padding: 40px 30px 30px;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             text-align: center;
-            position: relative;
-            overflow: hidden;
         }
         
-        .register-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="shoe-pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M10 2C12 2 14 4 14 6C14 8 12 10 10 10C8 10 6 8 6 6C6 4 8 2 10 2Z" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23shoe-pattern)"/></svg>') repeat;
-            animation: float 20s ease-in-out infinite;
-            z-index: 1;
-        }
-        
-        .register-header > * {
-            position: relative;
-            z-index: 2;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
+        .register-right {
+            padding: 60px 40px;
         }
         
         .brand-logo {
             font-size: 3rem;
-            margin-bottom: 15px;
-            background: white;
-            color: #667eea;
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
-            margin: 0 auto 15px;
-        }
-        
-        .register-body {
-            padding: 40px 30px;
+            margin-bottom: 20px;
+            color: #F5DEB3;
         }
         
         .form-control {
-            border: 2px solid #e9ecef;
+            border: 2px solid #F5DEB3;
             border-radius: 15px;
             padding: 15px 20px;
-            font-size: 16px;
+            font-size: 1rem;
             transition: all 0.3s ease;
-            background: #f8f9fa;
+            background: #FEFEFE;
         }
         
         .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+            border-color: #D2B48C;
+            box-shadow: 0 0 0 0.2rem rgba(210, 180, 140, 0.25);
             background: white;
         }
         
-        .input-group {
-            position: relative;
-            margin-bottom: 20px;
+        .input-group-text {
+            background: #F5DEB3;
+            border: 2px solid #F5DEB3;
+            border-right: none;
+            color: #A0522D;
+            border-radius: 15px 0 0 15px;
         }
         
-        .input-icon {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #adb5bd;
-            z-index: 10;
+        .input-group .form-control {
+            border-left: none;
+            border-radius: 0 15px 15px 0;
         }
         
-        .form-control.with-icon {
-            padding-left: 50px;
-        }
-        
-        .btn-register {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .btn-primary {
+            background: linear-gradient(135deg, #D2B48C 0%, #CD853F 100%);
             border: none;
             border-radius: 15px;
             padding: 15px 30px;
             font-weight: 600;
-            font-size: 16px;
-            color: white;
+            font-size: 1.1rem;
             transition: all 0.3s ease;
             width: 100%;
         }
         
-        .btn-register:hover {
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #CD853F 0%, #A0522D 100%);
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            box-shadow: 0 10px 25px rgba(210, 180, 140, 0.4);
+        }
+        
+        .btn-outline-primary {
+            border: 2px solid #D2B48C;
+            color: #A0522D;
+            border-radius: 15px;
+            padding: 12px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-outline-primary:hover {
+            background: linear-gradient(135deg, #D2B48C 0%, #CD853F 100%);
+            border-color: #CD853F;
             color: white;
+            transform: translateY(-2px);
         }
         
         .alert {
             border-radius: 15px;
             border: none;
             padding: 15px 20px;
-            margin-bottom: 20px;
         }
         
-        .back-home {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-            z-index: 1000;
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            color: #721c24;
         }
         
-        .back-home:hover {
-            background: rgba(255, 255, 255, 0.3);
-            color: white;
-            transform: translateY(-2px);
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
         }
         
-        .login-link {
+        .register-title {
+            color: #A0522D;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+        
+        .welcome-text {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .divider {
             text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #dee2e6;
-            margin-top: 20px;
+            margin: 30px 0;
+            position: relative;
         }
         
-        .login-link a {
-            color: #667eea;
-            text-decoration: none;
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #F5DEB3;
+        }
+        
+        .divider span {
+            background: white;
+            padding: 0 20px;
+            color: #A0522D;
             font-weight: 600;
         }
         
-        .login-link a:hover {
-            text-decoration: underline;
+        .features {
+            margin-top: 30px;
         }
         
-        @media (max-width: 576px) {
-            .register-container {
-                margin: 10px;
-                border-radius: 15px;
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        
+        .feature-item i {
+            color: #F5DEB3;
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .password-strength {
+            margin-top: 5px;
+            font-size: 0.85rem;
+        }
+        
+        .strength-weak { color: #dc3545; }
+        .strength-medium { color: #ffc107; }
+        .strength-strong { color: #28a745; }
+        
+        @media (max-width: 768px) {
+            .register-left {
+                padding: 40px 30px;
             }
             
-            .register-header {
-                padding: 30px 20px 20px;
-            }
-            
-            .register-body {
-                padding: 30px 20px;
+            .register-right {
+                padding: 40px 30px;
             }
             
             .brand-logo {
-                font-size: 2.5rem;
-                width: 60px;
-                height: 60px;
+                font-size: 2rem;
             }
-        }
-
-        .min-vh-100 {
-            min-height: 100vh !important;
         }
     </style>
 </head>
 <body>
-    <a href="../index.php" class="back-home">
-        <i class="fas fa-arrow-left me-2"></i> Back to Home
-    </a>
-    
-    <div class="container-fluid d-flex align-items-center justify-content-center min-vh-100">
-        <div class="register-container">
-            <!-- Header Section -->
-            <div class="register-header">
-                <div class="brand-logo">
-                    <i class="fas fa-shoe-prints"></i>
-                </div>
-                <h2 class="fw-bold mb-2">Join Kick Store!</h2>
-                <p class="mb-0 opacity-75">Create your account to get started</p>
-            </div>
-            
-            <!-- Body Section -->
-            <div class="register-body">
-                <?php if (!empty($error)): ?>
-                    <div class="alert alert-danger">
-                        <i class="fas fa-exclamation-circle me-2"></i>
-                        <?php echo htmlspecialchars($error); ?>
-                    </div>
-                <?php endif; ?>
-                
-                <?php if (!empty($success)): ?>
-                    <div class="alert alert-success">
-                        <i class="fas fa-check-circle me-2"></i>
-                        <?php echo htmlspecialchars($success); ?>
-                        <div class="mt-3 text-center">
-                            <a href="login.php" class="btn btn-sm btn-outline-success">
-                                <i class="fas fa-sign-in-alt me-1"></i> Login Now
-                            </a>
+    <div class="register-container">
+        <div class="row g-0">
+            <!-- Left Side - Branding -->
+            <div class="col-lg-5">
+                <div class="register-left h-100">
+                    <div>
+                        <div class="brand-logo">
+                            <i class="fas fa-shoe-prints"></i>
+                        </div>
+                        <h2 class="fw-bold mb-4">Bergabung dengan Kick Store</h2>
+                        <p class="welcome-text mb-4">
+                            Daftarkan diri Anda dan nikmati pengalaman berbelanja sepatu premium dengan koleksi terlengkap dan kualitas terbaik.
+                        </p>
+                        
+                        <div class="features">
+                            <div class="feature-item">
+                                <i class="fas fa-shipping-fast"></i>
+                                <span>Gratis ongkir untuk pembelian di atas Rp 500.000</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Garansi kualitas produk</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-headset"></i>
+                                <span>Customer service 24/7</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-tags"></i>
+                                <span>Promo dan diskon eksklusif</span>
+                            </div>
                         </div>
                     </div>
-                <?php endif; ?>
-                
-                <form method="POST" action="register.php" id="registerForm">
-                    <div class="input-group">
-                        <i class="fas fa-user input-icon"></i>
-                        <input type="text" class="form-control with-icon" name="full_name" placeholder="Full Name *" required>
+                </div>
+            </div>
+            
+            <!-- Right Side - Register Form -->
+            <div class="col-lg-7">
+                <div class="register-right">
+                    <h3 class="register-title text-center">Buat Akun Baru</h3>
+                    
+                    <?php if (!empty($error)): ?>
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle"></i> <?php echo $error; ?>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <?php if (!empty($success)): ?>
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> <?php echo $success; ?>
+                        </div>
+                    <?php endif; ?>
+                    
+                    <form method="POST" id="registerForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold" style="color: #A0522D;">Nama Lengkap</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                    <input type="text" class="form-control" name="full_name" placeholder="Nama lengkap Anda" value="<?php echo htmlspecialchars($_POST['full_name'] ?? ''); ?>" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold" style="color: #A0522D;">Username</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-at"></i>
+                                    </span>
+                                    <input type="text" class="form-control" name="username" placeholder="Username unik" value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" style="color: #A0522D;">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                <input type="email" class="form-control" name="email" placeholder="alamat@email.com" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold" style="color: #A0522D;">Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                    <input type="password" class="form-control" name="password" placeholder="Minimal 6 karakter" id="password" required>
+                                </div>
+                                <div class="password-strength" id="passwordStrength"></div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label fw-semibold" style="color: #A0522D;">Konfirmasi Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-lock"></i>
+                                    </span>
+                                    <input type="password" class="form-control" name="confirm_password" placeholder="Ulangi password" id="confirmPassword" required>
+                                </div>
+                                <div class="password-match" id="passwordMatch"></div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary mb-4">
+                            <i class="fas fa-user-plus"></i> Daftar Sekarang
+                        </button>
+                    </form>
+                    
+                    <div class="divider">
+                        <span>atau</span>
                     </div>
                     
-                    <div class="input-group">
-                        <i class="fas fa-id-card input-icon"></i>
-                        <input type="text" class="form-control with-icon" name="username" placeholder="Username *" required>
+                    <div class="text-center">
+                        <p class="mb-3" style="color: #A0522D;">Sudah punya akun?</p>
+                        <a href="login.php" class="btn btn-outline-primary">
+                            <i class="fas fa-sign-in-alt"></i> Masuk ke Akun
+                        </a>
                     </div>
-                    
-                    <div class="input-group">
-                        <i class="fas fa-envelope input-icon"></i>
-                        <input type="text" class="form-control with-icon" name="email" placeholder="Email Address (Optional)">
-                    </div>
-                    
-                    <div class="input-group">
-                        <i class="fas fa-lock input-icon"></i>
-                        <input type="text" class="form-control with-icon" name="password" placeholder="Password *" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <i class="fas fa-lock input-icon"></i>
-                        <input type="text" class="form-control with-icon" name="confirm_password" placeholder="Confirm Password *" required>
-                    </div>
-                    
-                    <div class="input-group">
-                        <i class="fas fa-phone input-icon"></i>
-                        <input type="text" class="form-control with-icon" name="phone" placeholder="Phone Number (Optional)">
-                    </div>
-                    
-                    <div class="input-group">
-                        <i class="fas fa-map-marker-alt input-icon"></i>
-                        <textarea class="form-control with-icon" name="address" rows="3" placeholder="Address (Optional)" style="resize: none;"></textarea>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-register">
-                        <i class="fas fa-user-plus me-2"></i>
-                        Create Account
-                    </button>
-                </form>
-                
-                <div class="login-link">
-                    <p class="text-muted mb-0">
-                        Already have an account? 
-                        <a href="login.php">Sign In</a>
-                    </p>
                 </div>
             </div>
         </div>
@@ -365,55 +396,84 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Add interactive effects
-        document.querySelectorAll('.form-control').forEach(input => {
-            input.addEventListener('focus', function() {
-                const icon = this.parentElement.querySelector('.input-icon');
-                if (icon) {
-                    icon.style.color = '#667eea';
-                }
-            });
+        // Password strength checker
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const strengthDiv = document.getElementById('passwordStrength');
             
-            input.addEventListener('blur', function() {
-                const icon = this.parentElement.querySelector('.input-icon');
-                if (icon) {
-                    icon.style.color = '#adb5bd';
-                }
-            });
+            if (password.length === 0) {
+                strengthDiv.innerHTML = '';
+                return;
+            }
+            
+            let strength = 0;
+            let feedback = [];
+            
+            if (password.length >= 6) strength++;
+            else feedback.push('minimal 6 karakter');
+            
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            let strengthText = '';
+            let strengthClass = '';
+            
+            if (strength <= 2) {
+                strengthText = 'Lemah';
+                strengthClass = 'strength-weak';
+            } else if (strength <= 3) {
+                strengthText = 'Sedang';
+                strengthClass = 'strength-medium';
+            } else {
+                strengthText = 'Kuat';
+                strengthClass = 'strength-strong';
+            }
+            
+            strengthDiv.innerHTML = `<span class="${strengthClass}">Kekuatan password: ${strengthText}</span>`;
         });
         
-        // Simplified form validation
+        // Password match checker
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            const matchDiv = document.getElementById('passwordMatch');
+            
+            if (confirmPassword.length === 0) {
+                matchDiv.innerHTML = '';
+                return;
+            }
+            
+            if (password === confirmPassword) {
+                matchDiv.innerHTML = '<span class="strength-strong">Password cocok</span>';
+            } else {
+                matchDiv.innerHTML = '<span class="strength-weak">Password tidak cocok</span>';
+            }
+        });
+        
+        // Form submission with loading state
         document.getElementById('registerForm').addEventListener('submit', function(e) {
-            const password = document.querySelector('input[name="password"]').value;
-            const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
-            const terms = document.getElementById('terms').checked;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
             
             if (password !== confirmPassword) {
                 e.preventDefault();
-                alert('Passwords do not match');
+                alert('Password dan konfirmasi password tidak cocok!');
                 return;
             }
             
-            if (!terms) {
-                e.preventDefault();
-                alert('Please accept the Terms of Service and Privacy Policy');
-                return;
-            }
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
             
-            // Debug: log form submission
-            console.log('Form submitted successfully');
-        });
-        
-        // Real-time password confirmation
-        document.querySelector('input[name="confirm_password"]').addEventListener('input', function() {
-            const password = document.querySelector('input[name="password"]').value;
-            const confirmPassword = this.value;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mendaftar...';
+            submitBtn.disabled = true;
             
-            if (confirmPassword && password !== confirmPassword) {
-                this.style.borderColor = '#dc3545';
-            } else {
-                this.style.borderColor = '#e9ecef';
-            }
+            // Re-enable if there's an error (page doesn't redirect)
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 3000);
         });
     </script>
 </body>

@@ -17,7 +17,7 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kick Store - Premium Footwear Collection</title>
+    <title>Toko Sepatu Kick - Koleksi Sepatu Premium</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -47,7 +47,7 @@ if (isset($_SESSION['user_id'])) {
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%);
+            background: linear-gradient(135deg, rgba(210, 180, 140, 0.8) 0%, rgba(160, 82, 45, 0.8) 100%);
             z-index: 1;
         }
         
@@ -82,19 +82,21 @@ if (isset($_SESSION['user_id'])) {
         }
         
         .btn-secondary-custom {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #D2B48C 0%, #CD853F 100%);
             border: none;
             padding: 15px 30px;
             font-weight: 600;
             border-radius: 50px;
             transition: all 0.3s ease;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 25px rgba(210, 180, 140, 0.3);
+            color: white;
         }
         
         .btn-secondary-custom:hover {
             transform: translateY(-3px);
-            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            box-shadow: 0 12px 35px rgba(210, 180, 140, 0.4);
+            background: linear-gradient(135deg, #CD853F 0%, #A0522D 100%);
+            color: white;
         }
         
         .btn-outline-light {
@@ -107,15 +109,14 @@ if (isset($_SESSION['user_id'])) {
         
         .btn-outline-light:hover {
             background: white;
-            color: #333;
+            color: #A0522D;
             transform: translateY(-3px);
             box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
         }
         
-        
         .features-section {
             padding: 80px 0;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: linear-gradient(135deg, #FEFEFE 0%, #F5DEB3 100%);
         }
         
         .feature-card {
@@ -123,7 +124,7 @@ if (isset($_SESSION['user_id'])) {
             border-radius: 20px;
             padding: 40px 30px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(210, 180, 140, 0.2);
             transition: all 0.3s ease;
             border: none;
             height: 100%;
@@ -131,13 +132,13 @@ if (isset($_SESSION['user_id'])) {
         
         .feature-card:hover {
             transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 20px 40px rgba(210, 180, 140, 0.3);
         }
         
         .feature-icon {
             width: 80px;
             height: 80px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #D2B48C 0%, #CD853F 100%);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -155,7 +156,18 @@ if (isset($_SESSION['user_id'])) {
         .navbar {
             background: rgba(255, 255, 255, 0.95) !important;
             backdrop-filter: blur(10px);
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 20px rgba(210, 180, 140, 0.2);
+        }
+        
+        .navbar .btn-primary {
+            background: linear-gradient(135deg, #D2B48C 0%, #CD853F 100%);
+            border: none;
+            color: white;
+        }
+        
+        .navbar .btn-primary:hover {
+            background: linear-gradient(135deg, #CD853F 0%, #A0522D 100%);
+            color: white;
         }
         
         .scroll-indicator {
@@ -206,7 +218,7 @@ if (isset($_SESSION['user_id'])) {
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
-            <a class="navbar-brand text-primary" href="index.php">
+            <a class="navbar-brand" href="index.php" style="color: #A0522D;">
                 <i class="fas fa-shoe-prints"></i> Kick Store
             </a>
             
@@ -217,19 +229,19 @@ if (isset($_SESSION['user_id'])) {
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#home">Home</a>
+                        <a class="nav-link" href="#home" style="color: #A0522D;">Beranda</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#features">Features</a>
+                        <a class="nav-link" href="#features" style="color: #A0522D;">Fitur</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="auth/login.php">
-                            <i class="fas fa-sign-in-alt"></i> Login
+                        <a class="nav-link" href="auth/login.php" style="color: #A0522D;">
+                            <i class="fas fa-sign-in-alt"></i> Masuk
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link btn btn-primary text-white px-3 ms-2" href="auth/register.php">
-                            <i class="fas fa-user-plus"></i> Register
+                            <i class="fas fa-user-plus"></i> Daftar
                         </a>
                     </li>
                 </ul>
@@ -240,15 +252,15 @@ if (isset($_SESSION['user_id'])) {
     <!-- Hero Section -->
     <section class="hero-section" id="home">
         <div class="container text-center hero-content">
-            <h1 class="display-4 mb-4">Welcome to Kick Store</h1>
-            <p class="lead mb-5">Find the perfect shoes for every occasion. Quality, comfort, and style in every step.</p>
+            <h1 class="display-4 mb-4">Selamat Datang di Toko Sepatu Kick</h1>
+            <p class="lead mb-5">Temukan sepatu yang sempurna untuk setiap kesempatan. Kualitas, kenyamanan, dan gaya di setiap langkah.</p>
             <div class="row justify-content-center">
                 <div class="col-md-8">
                     <a href="auth/register.php" class="btn btn-secondary-custom btn-lg me-3">
-                        <i class="fas fa-user-plus"></i> Get Started
+                        <i class="fas fa-user-plus"></i> Mulai Belanja
                     </a>
                     <a href="auth/login.php" class="btn btn-outline-light btn-lg">
-                        <i class="fas fa-sign-in-alt"></i> Login
+                        <i class="fas fa-sign-in-alt"></i> Masuk
                     </a>
                 </div>
             </div>
@@ -265,8 +277,8 @@ if (isset($_SESSION['user_id'])) {
         <div class="container">
             <div class="row text-center mb-5">
                 <div class="col-12">
-                    <h2 class="display-5 fw-bold mb-3">Why Choose Kick Store?</h2>
-                    <p class="lead text-muted">Experience the best in footwear shopping</p>
+                    <h2 class="display-5 fw-bold mb-3" style="color: #A0522D;">Mengapa Memilih Toko Sepatu Kick?</h2>
+                    <p class="lead text-muted">Rasakan pengalaman terbaik berbelanja sepatu</p>
                 </div>
             </div>
             
@@ -276,8 +288,8 @@ if (isset($_SESSION['user_id'])) {
                         <div class="feature-icon">
                             <i class="fas fa-gem"></i>
                         </div>
-                        <h4 class="fw-bold mb-3">Premium Quality</h4>
-                        <p class="text-muted">Carefully curated collection of high-quality footwear from trusted brands worldwide.</p>
+                        <h4 class="fw-bold mb-3" style="color: #A0522D;">Kualitas Premium</h4>
+                        <p class="text-muted">Koleksi sepatu berkualitas tinggi yang dikurasi dengan cermat dari merek-merek terpercaya di seluruh dunia.</p>
                     </div>
                 </div>
                 
@@ -286,8 +298,8 @@ if (isset($_SESSION['user_id'])) {
                         <div class="feature-icon">
                             <i class="fas fa-shipping-fast"></i>
                         </div>
-                        <h4 class="fw-bold mb-3">Fast Delivery</h4>
-                        <p class="text-muted">Quick and reliable shipping to get your perfect pair of shoes delivered right to your door.</p>
+                        <h4 class="fw-bold mb-3" style="color: #A0522D;">Pengiriman Cepat</h4>
+                        <p class="text-muted">Pengiriman cepat dan andal untuk mendapatkan sepatu impian Anda langsung ke depan pintu Anda.</p>
                     </div>
                 </div>
                 
@@ -296,8 +308,8 @@ if (isset($_SESSION['user_id'])) {
                         <div class="feature-icon">
                             <i class="fas fa-heart"></i>
                         </div>
-                        <h4 class="fw-bold mb-3">Customer Satisfaction</h4>
-                        <p class="text-muted">100% satisfaction guarantee with easy returns and exceptional customer service.</p>
+                        <h4 class="fw-bold mb-3" style="color: #A0522D;">Kepuasan Pelanggan</h4>
+                        <p class="text-muted">Jaminan kepuasan 100% dengan pengembalian mudah dan layanan pelanggan yang luar biasa.</p>
                     </div>
                 </div>
             </div>
@@ -308,8 +320,8 @@ if (isset($_SESSION['user_id'])) {
                         <div class="feature-icon">
                             <i class="fas fa-tags"></i>
                         </div>
-                        <h4 class="fw-bold mb-3">Best Prices</h4>
-                        <p class="text-muted">Competitive pricing with regular discounts and special offers for our valued customers.</p>
+                        <h4 class="fw-bold mb-3" style="color: #A0522D;">Harga Terbaik</h4>
+                        <p class="text-muted">Harga yang kompetitif dengan diskon reguler dan penawaran khusus untuk pelanggan setia kami.</p>
                     </div>
                 </div>
                 
@@ -318,8 +330,8 @@ if (isset($_SESSION['user_id'])) {
                         <div class="feature-icon">
                             <i class="fas fa-search"></i>
                         </div>
-                        <h4 class="fw-bold mb-3">Easy Shopping</h4>
-                        <p class="text-muted">User-friendly interface with advanced search and filter options to find exactly what you need.</p>
+                        <h4 class="fw-bold mb-3" style="color: #A0522D;">Belanja Mudah</h4>
+                        <p class="text-muted">Antarmuka yang ramah pengguna dengan opsi pencarian dan filter lanjutan untuk menemukan apa yang Anda butuhkan.</p>
                     </div>
                 </div>
             </div>
@@ -327,23 +339,23 @@ if (isset($_SESSION['user_id'])) {
     </section>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-5">
+    <footer class="py-5" style="background: linear-gradient(135deg, #A0522D 0%, #8B4513 100%); color: white;">
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
                     <h5 class="fw-bold mb-3">
                         <i class="fas fa-shoe-prints"></i> Kick Store
                     </h5>
-                    <p class="text-muted">Your trusted partner for premium footwear. Step into style, comfort, and quality.</p>
+                    <p class="text-light opacity-75">Mitra terpercaya untuk sepatu premium. Melangkah dengan gaya, kenyamanan, dan kualitas.</p>
                 </div>
                 <div class="col-md-6 text-end">
-                    <h6 class="fw-bold mb-3">Quick Links</h6>
+                    <h6 class="fw-bold mb-3">Tautan Cepat</h6>
                     <div class="d-flex flex-column align-items-end">
-                        <a href="auth/login.php" class="text-muted text-decoration-none mb-2">Login</a>
-                        <a href="auth/register.php" class="text-muted text-decoration-none mb-2">Register</a>
-                        <a href="#features" class="text-muted text-decoration-none">Features</a>
+                        <a href="auth/login.php" class="text-light text-decoration-none mb-2 opacity-75">Masuk</a>
+                        <a href="auth/register.php" class="text-light text-decoration-none mb-2 opacity-75">Daftar</a>
+                        <a href="#features" class="text-light text-decoration-none opacity-75">Fitur</a>
                     </div>
-                    <p class="text-muted mt-4">© 2024 Kick Store. All rights reserved.</p>
+                    <p class="text-light opacity-75 mt-4">© 2024 Kick Store. Hak cipta dilindungi.</p>
                 </div>
             </div>
         </div>

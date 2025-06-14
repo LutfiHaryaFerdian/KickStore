@@ -69,7 +69,7 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orders Management - Admin</title>
+    <title>Kelola Pesanan - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -118,7 +118,7 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <!-- Main Content -->
             <div class="col-md-10">
                 <div class="container-fluid mt-4">
-                    <h2>Orders Management</h2>
+                    <h2>Kelola Pesanan</h2>
                     
                     <?php if (isset($success)): ?>
                         <div class="alert alert-success"><?php echo $success; ?></div>
@@ -133,28 +133,28 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="card-body">
                             <form method="GET" class="row g-3">
                                 <div class="col-md-3">
-                                    <label class="form-label">Order Status</label>
+                                    <label class="form-label">Status Pesanan</label>
                                     <select name="status" class="form-select">
-                                        <option value="">All Status</option>
+                                        <option value="">Semua Status</option>
                                         <option value="pending" <?php echo $status_filter == 'pending' ? 'selected' : ''; ?>>Pending</option>
-                                        <option value="confirmed" <?php echo $status_filter == 'confirmed' ? 'selected' : ''; ?>>Confirmed</option>
-                                        <option value="shipped" <?php echo $status_filter == 'shipped' ? 'selected' : ''; ?>>Shipped</option>
-                                        <option value="delivered" <?php echo $status_filter == 'delivered' ? 'selected' : ''; ?>>Delivered</option>
-                                        <option value="cancelled" <?php echo $status_filter == 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                                        <option value="confirmed" <?php echo $status_filter == 'confirmed' ? 'selected' : ''; ?>>Dikonfirmasi</option>
+                                        <option value="shipped" <?php echo $status_filter == 'shipped' ? 'selected' : ''; ?>>Dikirim</option>
+                                        <option value="delivered" <?php echo $status_filter == 'delivered' ? 'selected' : ''; ?>>Terkirim</option>
+                                        <option value="cancelled" <?php echo $status_filter == 'cancelled' ? 'selected' : ''; ?>>Dibatalkan</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Payment Status</label>
+                                    <label class="form-label">Status Pembayaran</label>
                                     <select name="payment" class="form-select">
-                                        <option value="">All Payment Status</option>
+                                        <option value="">Semua Status Pembayaran</option>
                                         <option value="pending" <?php echo $payment_filter == 'pending' ? 'selected' : ''; ?>>Pending</option>
-                                        <option value="paid" <?php echo $payment_filter == 'paid' ? 'selected' : ''; ?>>Paid</option>
-                                        <option value="failed" <?php echo $payment_filter == 'failed' ? 'selected' : ''; ?>>Failed</option>
+                                        <option value="paid" <?php echo $payment_filter == 'paid' ? 'selected' : ''; ?>>Dibayar</option>
+                                        <option value="failed" <?php echo $payment_filter == 'failed' ? 'selected' : ''; ?>>Gagal</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Search</label>
-                                    <input type="text" name="search" class="form-control" placeholder="Search by customer name, email, or order ID..." value="<?php echo $search; ?>">
+                                    <label class="form-label">Cari</label>
+                                    <input type="text" name="search" class="form-control" placeholder="Cari berdasarkan nama pelanggan, email, atau ID pesanan..." value="<?php echo $search; ?>">
                                 </div>
                                 <div class="col-md-2">
                                     <label class="form-label">&nbsp;</label>
@@ -171,15 +171,15 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th>Order ID</th>
-                                            <th>Customer</th>
+                                            <th>ID Pesanan</th>
+                                            <th>Pelanggan</th>
                                             <th>Email</th>
-                                            <th>Amount</th>
-                                            <th>Payment Method</th>
-                                            <th>Order Status</th>
-                                            <th>Payment Status</th>
-                                            <th>Date</th>
-                                            <th>Actions</th>
+                                            <th>Jumlah</th>
+                                            <th>Metode Pembayaran</th>
+                                            <th>Status Pesanan</th>
+                                            <th>Status Pembayaran</th>
+                                            <th>Tanggal</th>
+                                            <th>Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -188,7 +188,7 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <td>#<?php echo $order['id']; ?></td>
                                                 <td><?php echo $order['full_name']; ?></td>
                                                 <td><?php echo $order['email']; ?></td>
-                                                <td>$<?php echo number_format($order['total_amount'], 2); ?></td>
+                                                <td>Rp <?php echo number_format($order['total_amount'], 0, ',', '.'); ?></td>
                                                 <td><?php echo $order['payment_method']; ?></td>
                                                 <td>
                                                     <span class="badge bg-<?php 
@@ -197,7 +197,19 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                             ($order['status'] == 'shipped' ? 'primary' : 
                                                             ($order['status'] == 'delivered' ? 'success' : 'danger'))); 
                                                     ?>">
-                                                        <?php echo ucfirst($order['status']); ?>
+                                                        <?php 
+                                                            if($order['status'] == 'pending'){
+                                                                echo "Pending";
+                                                            } elseif ($order['status'] == 'confirmed'){
+                                                                echo "Dikonfirmasi";
+                                                            } elseif ($order['status'] == 'shipped'){
+                                                                echo "Dikirim";
+                                                            } elseif ($order['status'] == 'delivered'){
+                                                                echo "Terkirim";
+                                                            } else {
+                                                                echo "Dibatalkan";
+                                                            }
+                                                        ?>
                                                     </span>
                                                 </td>
                                                 <td>
@@ -205,7 +217,15 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                         echo $order['payment_status'] == 'paid' ? 'success' : 
                                                             ($order['payment_status'] == 'pending' ? 'warning' : 'danger'); 
                                                     ?>">
-                                                        <?php echo ucfirst($order['payment_status']); ?>
+                                                        <?php 
+                                                            if($order['payment_status'] == 'paid'){
+                                                                echo "Dibayar";
+                                                            } elseif ($order['payment_status'] == 'pending'){
+                                                                echo "Pending";
+                                                            } else {
+                                                                echo "Gagal";
+                                                            }
+                                                        ?>
                                                     </span>
                                                 </td>
                                                 <td><?php echo date('M d, Y', strtotime($order['created_at'])); ?></td>
@@ -234,7 +254,7 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Update Order Status</h5>
+                    <h5 class="modal-title">Perbarui Status Pesanan</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="POST">
@@ -243,38 +263,38 @@ $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <input type="hidden" name="order_id" id="update_order_id">
                         
                         <div class="mb-3">
-                            <label class="form-label">Order ID</label>
+                            <label class="form-label">ID Pesanan</label>
                             <input type="text" class="form-control" id="display_order_id" readonly>
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label">Customer</label>
+                            <label class="form-label">Pelanggan</label>
                             <input type="text" class="form-control" id="display_customer" readonly>
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label">Order Status</label>
+                            <label class="form-label">Status Pesanan</label>
                             <select name="status" class="form-select" id="update_status_select" required>
                                 <option value="pending">Pending</option>
-                                <option value="confirmed">Confirmed</option>
-                                <option value="shipped">Shipped</option>
-                                <option value="delivered">Delivered</option>
-                                <option value="cancelled">Cancelled</option>
+                                <option value="confirmed">Dikonfirmasi</option>
+                                <option value="shipped">Dikirim</option>
+                                <option value="delivered">Terkirim</option>
+                                <option value="cancelled">Dibatalkan</option>
                             </select>
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label">Payment Status</label>
+                            <label class="form-label">Status Pembayaran</label>
                             <select name="payment_status" class="form-select" id="update_payment_select" required>
                                 <option value="pending">Pending</option>
-                                <option value="paid">Paid</option>
-                                <option value="failed">Failed</option>
+                                <option value="paid">Dibayar</option>
+                                <option value="failed">Gagal</option>
                             </select>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Update Status</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Perbarui Status</button>
                     </div>
                 </form>
             </div>

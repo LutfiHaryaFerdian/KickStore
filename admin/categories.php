@@ -73,7 +73,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Categories Management - Admin</title>
+    <title>Kelola Kategori - Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -123,9 +123,9 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="col-md-10">
                 <div class="container-fluid mt-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h2>Categories Management</h2>
+                        <h2>Kelola Kategori</h2>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
-                            <i class="fas fa-plus"></i> Add Category
+                            <i class="fas fa-plus"></i> Tambah Kategori
                         </button>
                     </div>
                     
@@ -148,7 +148,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <span class="badge bg-primary"><?php echo $category['product_count']; ?> products</span>
                                         </div>
                                         <p class="card-text"><?php echo $category['description'] ?: 'No description available'; ?></p>
-                                        <p class="text-muted small">Created: <?php echo date('M d, Y', strtotime($category['created_at'])); ?></p>
+                                        <p class="text-muted small">Dibuat: <?php echo date('M d, Y', strtotime($category['created_at'])); ?></p>
                                     </div>
                                     <div class="card-footer">
                                         <button class="btn btn-sm btn-primary" onclick="editCategory(<?php echo htmlspecialchars(json_encode($category)); ?>)">
@@ -159,12 +159,12 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <input type="hidden" name="action" value="delete">
                                                 <input type="hidden" name="category_id" value="<?php echo $category['id']; ?>">
                                                 <button type="submit" class="btn btn-sm btn-danger">
-                                                    <i class="fas fa-trash"></i> Delete
+                                                    <i class="fas fa-trash"></i> Hapus
                                                 </button>
                                             </form>
                                         <?php else: ?>
                                             <button class="btn btn-sm btn-secondary" disabled title="Cannot delete category with products">
-                                                <i class="fas fa-trash"></i> Delete
+                                                <i class="fas fa-trash"></i> Hapus
                                             </button>
                                         <?php endif; ?>
                                     </div>
@@ -182,24 +182,24 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add New Category</h5>
+                    <h5 class="modal-title">Tambah Kategori Baru</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="POST">
                     <div class="modal-body">
                         <input type="hidden" name="action" value="add">
                         <div class="mb-3">
-                            <label class="form-label">Category Name</label>
+                            <label class="form-label">Nama Kategori</label>
                             <input type="text" class="form-control" name="name" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
+                            <label class="form-label">Deskripsi</label>
                             <textarea class="form-control" name="description" rows="3"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add Category</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Tambah Kategori</button>
                     </div>
                 </form>
             </div>
@@ -211,7 +211,7 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Category</h5>
+                    <h5 class="modal-title">Edit Kategori</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="POST">
@@ -219,17 +219,17 @@ $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <input type="hidden" name="action" value="update">
                         <input type="hidden" name="category_id" id="edit_category_id">
                         <div class="mb-3">
-                            <label class="form-label">Category Name</label>
+                            <label class="form-label">Nama Kategori</label>
                             <input type="text" class="form-control" name="name" id="edit_name" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Description</label>
+                            <label class="form-label">Deskripsi</label>
                             <textarea class="form-control" name="description" id="edit_description" rows="3"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Update Category</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Perbarui Kategori</button>
                     </div>
                 </form>
             </div>
