@@ -13,7 +13,7 @@ $db = $database->getConnection();
 $success = '';
 $error = '';
 
-// Handle form submission
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $full_name = trim($_POST['full_name']);
     $email = trim($_POST['email']);
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $confirm_password = $_POST['confirm_password'] ?? '';
     
     try {
-        // Update basic info
+
         if (!empty($full_name) && !empty($email)) {
             $update_query = "UPDATE users SET full_name = ?, email = ?, phone = ?, address = ? WHERE id = ?";
             $update_stmt = $db->prepare($update_query);
@@ -34,9 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $success = "Profil berhasil diperbarui!";
         }
         
-        // Update password if provided
+
         if (!empty($current_password) && !empty($new_password)) {
-            // Verify current password
+
             $pass_query = "SELECT password FROM users WHERE id = ?";
             $pass_stmt = $db->prepare($pass_query);
             $pass_stmt->execute([$_SESSION['user_id']]);
@@ -63,13 +63,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Get user data
+
 $user_query = "SELECT * FROM users WHERE id = ?";
 $user_stmt = $db->prepare($user_query);
 $user_stmt->execute([$_SESSION['user_id']]);
 $user = $user_stmt->fetch(PDO::FETCH_ASSOC);
 
-// Get user statistics
+
 $stats_query = "SELECT 
     COUNT(*) as total_orders,
     SUM(CASE WHEN payment_status = 'paid' THEN total_amount ELSE 0 END) as total_spent
@@ -215,7 +215,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
     </style>
 </head>
 <body>
-    <!-- Navigation -->
+
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand fw-bold" href="index.php">
@@ -262,7 +262,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
     </nav>
 
     <div class="container">
-        <!-- Breadcrumb -->
+
         <nav aria-label="breadcrumb" class="mt-3">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="index.php">Beranda</a></li>
@@ -271,7 +271,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
         </nav>
 
         <div class="row">
-            <!-- Profile Info -->
+
             <div class="col-lg-4">
                 <div class="profile-container">
                     <div class="profile-header">
@@ -302,7 +302,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                 </div>
             </div>
             
-            <!-- Profile Form -->
+
             <div class="col-lg-8">
                 <div class="profile-container">
                     <?php if (!empty($success)): ?>
@@ -350,7 +350,7 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
                             <textarea class="form-control" name="address" rows="3" placeholder="Masukkan alamat lengkap Anda..."><?php echo htmlspecialchars($user['address'] ?? ''); ?></textarea>
                         </div>
                         
-                        <!-- Password Section -->
+
                         <div class="password-section">
                             <h5 class="section-title">
                                 <i class="fas fa-lock"></i> Ubah Kata Sandi
@@ -389,13 +389,13 @@ $stats = $stats_stmt->fetch(PDO::FETCH_ASSOC);
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Password validation
+
         document.querySelector('form').addEventListener('submit', function(e) {
             const currentPassword = document.querySelector('input[name="current_password"]').value;
             const newPassword = document.querySelector('input[name="new_password"]').value;
             const confirmPassword = document.querySelector('input[name="confirm_password"]').value;
             
-            // If any password field is filled, all must be filled
+
             if (currentPassword || newPassword || confirmPassword) {
                 if (!currentPassword) {
                     e.preventDefault();
