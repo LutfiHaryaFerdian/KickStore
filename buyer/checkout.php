@@ -12,7 +12,7 @@ $db = $database->getConnection();
 
 $user_id = $_SESSION['user_id'];
 
-// Get cart items
+
 $cart_query = "SELECT c.*, p.name, p.price, p.stock, p.image_url
                FROM cart c
                JOIN products p ON c.product_id = p.id
@@ -27,36 +27,36 @@ if (empty($cart_items)) {
     exit();
 }
 
-// Calculate totals
+
 $subtotal = 0;
 foreach ($cart_items as $item) {
     $subtotal += $item['price'] * $item['quantity'];
 }
 
-$tax_rate = 0.10; // 10% tax
+$tax_rate = 0.10; 
 $tax_amount = $subtotal * $tax_rate;
-$shipping_amount = $subtotal > 100000 ? 0 : 15000; // Free shipping over Rp 100,000
+$shipping_amount = $subtotal > 100000 ? 0 : 15000; 
 $total = $subtotal + $tax_amount + $shipping_amount;
 
-// Get user profile for default shipping address
+
 $user_query = "SELECT * FROM users WHERE id = ?";
 $user_stmt = $db->prepare($user_query);
 $user_stmt->execute([$user_id]);
 $user = $user_stmt->fetch(PDO::FETCH_ASSOC);
 
-// Initialize variables
+
 $error = '';
 $success = '';
 
-// Handle form submission
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
-        // Safely get POST data with null coalescing
+
         $shipping_address = trim($_POST['shipping_address'] ?? '');
         $payment_method = $_POST['payment_method'] ?? '';
         $notes = trim($_POST['notes'] ?? '');
         
-        // Validation
+
         if (empty($shipping_address)) {
             throw new Exception("Alamat pengiriman wajib diisi!");
         }
@@ -65,13 +65,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             throw new Exception("Metode pembayaran wajib dipilih!");
         }
         
-        // Validate payment method
+
         $valid_payment_methods = ['cod', 'bank_transfer', 'e_wallet'];
         if (!in_array($payment_method, $valid_payment_methods)) {
             throw new Exception("Metode pembayaran tidak valid!");
         }
         
-        // Check if payment proof is uploaded for Bank Transfer
+
         $payment_proof_path = null;
         $original_filename = null;
         $file_size = 0;
@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 throw new Exception("Bukti pembayaran wajib diunggah untuk Transfer Bank!");
             }
             
-            // Validate file
+
             $file = $_FILES['payment_proof'];
             $allowed_types = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
             $max_size = 5 * 1024 * 1024; // 5MB
@@ -99,18 +99,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 throw new Exception("Tipe file tidak valid. Hanya JPG, PNG dan PDF yang diizinkan.");
             }
             
-            // Create upload directory if it doesn't exist
+
             $upload_dir = '../uploads/payment_proofs/';
             if (!file_exists($upload_dir)) {
                 mkdir($upload_dir, 0755, true);
             }
             
-            // Generate unique filename
+
             $file_extension = pathinfo($file['name'], PATHINFO_EXTENSION);
             $filename = 'payment_' . time() . '_' . uniqid() . '.' . $file_extension;
             $target_path = $upload_dir . $filename;
             
-            // Move uploaded file
+
             if (!move_uploaded_file($file['tmp_name'], $target_path)) {
                 throw new Exception("Gagal mengunggah file. Silakan coba lagi.");
             }
@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $file_type = $file['type'];
         }
         
-        // Check if cart is still valid (products still in stock)
+
         foreach ($cart_items as $item) {
             $stock_check_query = "SELECT stock FROM products WHERE id = ?";
             $stock_check_stmt = $db->prepare($stock_check_query);
@@ -133,11 +133,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         }
         
-        // Start transaction
+
         $db->beginTransaction();
         
         try {
-            // Create order
+
             $order_query = "INSERT INTO orders (user_id, subtotal, tax_amount, shipping_amount, total_amount, status, payment_method, payment_status, shipping_address, notes, created_at) 
                             VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, CURRENT_TIMESTAMP)";
             $payment_status = ($payment_method == 'bank_transfer') ? 'pending' : 'pending';
@@ -160,7 +160,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             
             $order_id = $db->lastInsertId();
             
-            // Add order items
+
             $item_query = "INSERT INTO order_items (order_id, product_id, quantity, price) VALUES (?, ?, ?, ?)";
             $item_stmt = $db->prepare($item_query);
             
@@ -176,7 +176,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     throw new Exception("Gagal menambahkan item pesanan: " . $item['name']);
                 }
                 
-                // Update product stock
+
                 $stock_query = "UPDATE products SET stock = stock - ? WHERE id = ?";
                 $stock_stmt = $db->prepare($stock_query);
                 $stock_result = $stock_stmt->execute([$item['quantity'], $item['product_id']]);
@@ -186,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             }
             
-            // Save payment proof if Bank Transfer
+
             if ($payment_method == 'bank_transfer' && $payment_proof_path) {
                 $proof_query = "INSERT INTO payment_proofs (order_id, file_path, original_filename, file_size, file_type, uploaded_at) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
                 $proof_stmt = $db->prepare($proof_query);
@@ -203,7 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             }
             
-            // Clear cart
+
             $clear_cart_query = "DELETE FROM cart WHERE user_id = ?";
             $clear_cart_stmt = $db->prepare($clear_cart_query);
             $clear_result = $clear_cart_stmt->execute([$user_id]);
@@ -212,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 throw new Exception("Gagal mengosongkan keranjang!");
             }
             
-            // Commit transaction
+
             $db->commit();
             
             $_SESSION['success'] = "Pesanan berhasil dibuat! ID Pesanan: #" . $order_id;
@@ -220,9 +220,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             exit();
             
         } catch (Exception $e) {
-            // Rollback transaction
+
             $db->rollback();
-            throw $e; // Re-throw to outer catch
+            throw $e; 
         }
         
     } catch (Exception $e) {
@@ -421,7 +421,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </style>
 </head>
 <body>
-    <!-- Navigation -->
+
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold" href="index.php">
@@ -436,7 +436,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </nav>
 
-    <!-- Hero Section -->
+
     <div class="hero-section">
         <div class="container text-center">
             <h1 class="display-4 fw-bold mb-3">
@@ -446,7 +446,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </div>
     </div>
 
-    <!-- Alert Messages -->
+
     <?php if (!empty($error)): ?>
         <div class="container">
             <div class="alert alert-danger alert-dismissible fade show">
@@ -468,9 +468,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="container">
         <form method="POST" action="checkout.php" id="checkoutForm" enctype="multipart/form-data">
             <div class="row">
-                <!-- Checkout Form -->
+
                 <div class="col-lg-8">
-                    <!-- Shipping Information -->
+
                     <div class="checkout-section">
                         <h4 class="mb-4" style="color: #A0522D;">
                             <i class="fas fa-truck"></i> Informasi Pengiriman
@@ -501,7 +501,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </div>
                     </div>
                     
-                    <!-- Payment Method -->
+
                     <div class="checkout-section">
                         <h4 class="mb-4" style="color: #A0522D;">
                             <i class="fas fa-credit-card"></i> Metode Pembayaran <span class="required">*</span>
@@ -537,7 +537,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </div>
                         </div>
                         
-                        <!-- Payment Proof Upload (for Bank Transfer) -->
+
                         <div id="payment_proof_container">
                             <h5 class="mb-3" style="color: #A0522D;">
                                 <i class="fas fa-receipt"></i> Informasi Transfer Bank
@@ -622,14 +622,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     </div>
                 </div>
                 
-                <!-- Order Summary -->
+
                 <div class="col-lg-4">
                     <div class="order-summary">
                         <h4 class="mb-4">
                             <i class="fas fa-receipt"></i> Ringkasan Pesanan
                         </h4>
                         
-                        <!-- Cart Items -->
+
                         <div class="mb-4">
                             <?php foreach ($cart_items as $item): ?>
                                 <div class="cart-item">
@@ -657,7 +657,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <?php endforeach; ?>
                         </div>
                         
-                        <!-- Pricing -->
+
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal:</span>
                             <span class="fw-bold">Rp<?php echo number_format($subtotal, 0, ',', '.'); ?></span>
@@ -701,7 +701,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </form>
     </div>
 
-    <!-- Footer -->
+
     <footer class="py-5 mt-5" style="background: linear-gradient(135deg, #A0522D 0%, #8B4513 100%); color: white;">
         <div class="container">
             <div class="row">
@@ -719,40 +719,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function selectPayment(method) {
-            // Remove selected class from all payment options
+
             document.querySelectorAll('.payment-option').forEach(option => {
                 option.classList.remove('selected');
             });
             
-            // Add selected class to clicked option
+
             event.currentTarget.classList.add('selected');
             
-            // Check the radio button
+
             document.getElementById(method).checked = true;
             
-            // Show/hide payment proof upload based on selection
+
             const paymentProofContainer = document.getElementById('payment_proof_container');
             if (method === 'bank_transfer') {
                 paymentProofContainer.style.display = 'block';
             } else {
                 paymentProofContainer.style.display = 'none';
-                // Reset file input if switching away from bank transfer
+
                 document.getElementById('payment_proof').value = '';
                 document.getElementById('file_preview').style.display = 'none';
             }
         }
         
-        // File upload handling
+
         const fileUploadArea = document.getElementById('fileUploadArea');
         const fileInput = document.getElementById('payment_proof');
         const filePreview = document.getElementById('file_preview');
         
-        // Click to upload
+
         fileUploadArea.addEventListener('click', () => {
             fileInput.click();
         });
         
-        // Drag and drop
+
         fileUploadArea.addEventListener('dragover', (e) => {
             e.preventDefault();
             fileUploadArea.classList.add('dragover');
@@ -773,7 +773,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         });
         
-        // File input change
+
         fileInput.addEventListener('change', (e) => {
             if (e.target.files.length > 0) {
                 handleFileSelect(e.target.files[0]);
@@ -781,7 +781,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         });
         
         function handleFileSelect(file) {
-            // Validate file
+
             const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
             const maxSize = 5 * 1024 * 1024; // 5MB
             
@@ -797,7 +797,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 return;
             }
             
-            // Show preview
+
             document.getElementById('file_name').textContent = file.name;
             document.getElementById('file_size').textContent = formatFileSize(file.size);
             filePreview.style.display = 'block';
@@ -818,7 +818,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text).then(() => {
-                // Show success message
+
                 const btn = event.target.closest('.copy-btn');
                 const originalText = btn.innerHTML;
                 btn.innerHTML = '<i class="fas fa-check"></i> Tersalin';
@@ -828,7 +828,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             });
         }
         
-        // Form validation
+
         document.getElementById('checkoutForm').addEventListener('submit', function(e) {
             const shippingAddress = document.querySelector('textarea[name="shipping_address"]').value.trim();
             const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
@@ -845,7 +845,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 return false;
             }
             
-            // Validate payment proof for Bank Transfer
+
             if (paymentMethod.value === 'bank_transfer') {
                 const paymentProof = document.getElementById('payment_proof');
                 if (!paymentProof.files || !paymentProof.files[0]) {
@@ -855,13 +855,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
             }
             
-            // Show loading state
+
             const submitBtn = document.querySelector('.btn-place-order');
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses Pesanan...';
             submitBtn.disabled = true;
         });
         
-        // Initialize first payment option as selected
+
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelector('.payment-option').classList.add('selected');
         });
