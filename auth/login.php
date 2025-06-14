@@ -2,6 +2,7 @@
 session_start();
 require_once '../config/database.php';
 
+// Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['role'] == 'admin') {
         header("Location: ../admin/dashboard.php");
@@ -236,6 +237,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .demo-account small {
             color: #8B4513;
         }
+
+        .btn-outline-secondary {
+            border: 2px solid #8B4513;
+            color: #8B4513;
+            border-radius: 15px;
+            padding: 12px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-secondary:hover {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            border-color: #8B4513;
+            color: white;
+            transform: translateY(-2px);
+        }
         
         @media (max-width: 768px) {
             .login-left {
@@ -255,6 +272,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
     <div class="login-container">
         <div class="row g-0">
+            <!-- Left Side - Branding -->
             <div class="col-lg-5">
                 <div class="login-left h-100">
                     <div>
@@ -277,6 +295,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
             </div>
             
+            <!-- Right Side - Login Form -->
             <div class="col-lg-7">
                 <div class="login-right">
                     <h3 class="login-title text-center">Masuk ke Akun Anda</h3>
@@ -323,6 +342,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <i class="fas fa-user-plus"></i> Daftar Sekarang
                         </a>
                     </div>
+                    
+                    <!-- Demo Accounts -->
+                    <div class="demo-accounts">
+                        <h6><i class="fas fa-info-circle"></i> Akun Demo</h6>
+                        <div class="demo-account" onclick="fillLogin('admin', 'admin123')">
+                            <strong>Admin</strong><br>
+                            <small>Username: admin | Password: admin123</small>
+                        </div>
+                        <div class="demo-account" onclick="fillLogin('buyer1', 'buyer123')">
+                            <strong>Pembeli</strong><br>
+                            <small>Username: buyer1 | Password: buyer123</small>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="../index.php" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-2"></i>Kembali ke Beranda
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -330,11 +368,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Fill login form with demo credentials
         function fillLogin(username, password) {
             document.querySelector('input[name="username"]').value = username;
             document.querySelector('input[name="password"]').value = password;
         }
         
+        // Form submission with loading state
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
@@ -342,12 +382,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
             submitBtn.disabled = true;
             
+            // Re-enable if there's an error (page doesn't redirect)
             setTimeout(() => {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             }, 3000);
         });
         
+        // Add floating animation to brand logo
         const logo = document.querySelector('.brand-logo');
         setInterval(() => {
             logo.style.transform = 'translateY(-5px)';

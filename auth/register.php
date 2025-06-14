@@ -2,6 +2,7 @@
 session_start();
 require_once '../config/database.php';
 
+// Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['role'] == 'admin') {
         header("Location: ../admin/dashboard.php");
@@ -21,6 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
     
+    // Validation
     if (empty($full_name) || empty($username) || empty($email) || empty($password)) {
         $error = "Semua field harus diisi!";
     } elseif ($password !== $confirm_password) {
@@ -33,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $database = new Database();
         $db = $database->getConnection();
         
+        // Check if username or email already exists
         $check_query = "SELECT * FROM users WHERE username = ? OR email = ?";
         $check_stmt = $db->prepare($check_query);
         $check_stmt->execute([$username, $email]);
@@ -40,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($check_stmt->rowCount() > 0) {
             $error = "Username atau email sudah digunakan!";
         } else {
+            // Insert new user
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             $insert_query = "INSERT INTO users (full_name, username, email, password, role, created_at) VALUES (?, ?, ?, ?, 'buyer', NOW())";
             $insert_stmt = $db->prepare($insert_query);
@@ -243,6 +247,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .strength-weak { color: #dc3545; }
         .strength-medium { color: #ffc107; }
         .strength-strong { color: #28a745; }
+
+        .btn-outline-secondary {
+            border: 2px solid #8B4513;
+            color: #8B4513;
+            border-radius: 15px;
+            padding: 12px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-secondary:hover {
+            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+            border-color: #8B4513;
+            color: white;
+            transform: translateY(-2px);
+        }
         
         @media (max-width: 768px) {
             .register-left {
@@ -262,6 +282,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
     <div class="register-container">
         <div class="row g-0">
+            <!-- Left Side - Branding -->
             <div class="col-lg-5">
                 <div class="register-left h-100">
                     <div>
@@ -272,18 +293,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <p class="welcome-text mb-4">
                             Daftarkan diri Anda dan nikmati pengalaman berbelanja sepatu premium dengan koleksi terlengkap dan kualitas terbaik.
                         </p>
-                        <div class="d-flex justify-content-center gap-3">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
+                        
+                        <div class="features">
+                            <div class="feature-item">
+                                <i class="fas fa-shipping-fast"></i>
+                                <span>Gratis ongkir untuk pembelian di atas Rp 500.000</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Garansi kualitas produk</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-headset"></i>
+                                <span>Customer service 24/7</span>
+                            </div>
+                            <div class="feature-item">
+                                <i class="fas fa-tags"></i>
+                                <span>Promo dan diskon eksklusif</span>
+                            </div>
                         </div>
-                        <p class="mt-2 mb-0 small">Dipercaya oleh ribuan pelanggan</p>
                     </div>
                 </div>
             </div>
             
+            <!-- Right Side - Register Form -->
             <div class="col-lg-7">
                 <div class="register-right">
                     <h3 class="register-title text-center">Buat Akun Baru</h3>
@@ -372,6 +405,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <i class="fas fa-sign-in-alt"></i> Masuk ke Akun
                         </a>
                     </div>
+
+                    <div class="text-center mt-4">
+                        <a href="../index.php" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-2"></i>Kembali ke Beranda
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -379,6 +418,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Password strength checker
         document.getElementById('password').addEventListener('input', function() {
             const password = this.value;
             const strengthDiv = document.getElementById('passwordStrength');
@@ -416,6 +456,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             strengthDiv.innerHTML = `<span class="${strengthClass}">Kekuatan password: ${strengthText}</span>`;
         });
         
+        // Password match checker
         document.getElementById('confirmPassword').addEventListener('input', function() {
             const password = document.getElementById('password').value;
             const confirmPassword = this.value;
@@ -433,6 +474,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         });
         
+        // Form submission with loading state
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
@@ -449,6 +491,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mendaftar...';
             submitBtn.disabled = true;
             
+            // Re-enable if there's an error (page doesn't redirect)
             setTimeout(() => {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
