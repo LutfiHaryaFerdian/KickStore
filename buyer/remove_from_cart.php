@@ -7,7 +7,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'buyer') {
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] != 'POST' || !isset($_POST['cart_id'])) {
+if ($_SERVER['REQUEST_METHOD'] != 'POST') {
     header("Location: cart.php");
     exit();
 }
@@ -15,30 +15,45 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST' || !isset($_POST['cart_id'])) {
 $database = new Database();
 $db = $database->getConnection();
 
-$cart_id = $_POST['cart_id'];
 $user_id = $_SESSION['user_id'];
 
 try {
-    // Get product name before deleting
-    $query = "SELECT p.name FROM cart c JOIN products p ON c.product_id = p.id WHERE c.id = ? AND c.user_id = ?";
-    $stmt = $db->prepare($query);
-    $stmt->execute([$cart_id, $user_id]);
-    $product = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if (!$product) {
-        $_SESSION['error'] = "Cart item not found!";
-        header("Location: cart.php");
-        exit();
-    }
-    
-    // Delete cart item
-    $delete_query = "DELETE FROM cart WHERE id = ? AND user_id = ?";
-    $delete_stmt = $db->prepare($delete_query);
-    
-    if ($delete_stmt->execute([$cart_id, $user_id])) {
-        $_SESSION['success'] = "Removed " . $product['name'] . " from cart";
+    if (isset($_POST['cart_id'])) {
+        // Remove single item
+        $cart_id = $_POST['cart_id'];
+        
+        // Get product name for confirmation message
+        $product_query = "SELECT p.name FROM cart c JOIN products p ON c.product_id = p.id WHERE c.id = ? AND c.user_id = ?";
+        $product_stmt = $db->prepare($product_query);
+        $product_stmt->execute([$cart_id, $user_id]);
+        $product = $product_stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($product) {
+            $delete_query = "DELETE FROM cart WHERE id = ? AND user_id = ?";
+            $delete_stmt = $db->prepare($delete_query);
+            
+            if ($delete_stmt->execute([$cart_id, $user_id])) {
+                $_SESSION['success'] = "Item " . $product['name'] . " berhasil dihapus dari keranjang.";
+            } else {
+                $_SESSION['error'] = "Gagal menghapus item dari keranjang.";
+            }
+        } else {
+            $_SESSION['error'] = "Item tidak ditemukan di keranjang.";
+        }
+        
+    } elseif (isset($_POST['clear_cart'])) {
+        // Clear entire cart
+        $clear_query = "DELETE FROM cart WHERE user_id = ?";
+        $clear_stmt = $db->prepare($clear_query);
+        
+        if ($clear_stmt->execute([$user_id])) {
+            $_SESSION['success'] = "Keranjang berhasil dikosongkan.";
+        } else {
+            $_SESSION['error'] = "Gagal mengosongkan keranjang.";
+        }
+        
     } else {
-        $_SESSION['error'] = "Failed to remove item from cart!";
+        $_SESSION['error'] = "Data tidak valid.";
     }
     
 } catch (Exception $e) {
