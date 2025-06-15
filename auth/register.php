@@ -2,7 +2,7 @@
 session_start();
 require_once '../config/database.php';
 
-// Redirect if already logged in
+
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['role'] == 'admin') {
         header("Location: ../admin/dashboard.php");
@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
     
-    // Validation
+
     if (empty($full_name) || empty($username) || empty($email) || empty($password)) {
         $error = "Semua field harus diisi!";
     } elseif ($password !== $confirm_password) {
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $database = new Database();
         $db = $database->getConnection();
         
-        // Check if username or email already exists
+
         $check_query = "SELECT * FROM users WHERE username = ? OR email = ?";
         $check_stmt = $db->prepare($check_query);
         $check_stmt->execute([$username, $email]);
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($check_stmt->rowCount() > 0) {
             $error = "Username atau email sudah digunakan!";
         } else {
-            // Insert new user
+
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             $insert_query = "INSERT INTO users (full_name, username, email, password, role, created_at) VALUES (?, ?, ?, ?, 'buyer', NOW())";
             $insert_stmt = $db->prepare($insert_query);
@@ -282,7 +282,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
     <div class="register-container">
         <div class="row g-0">
-            <!-- Left Side - Branding -->
+
             <div class="col-lg-5">
                 <div class="register-left h-100">
                     <div>
@@ -305,7 +305,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
             </div>
             
-            <!-- Right Side - Register Form -->
+
             <div class="col-lg-7">
                 <div class="register-right">
                     <h3 class="register-title text-center">Buat Akun Baru</h3>
@@ -407,7 +407,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Password strength checker
+
         document.getElementById('password').addEventListener('input', function() {
             const password = this.value;
             const strengthDiv = document.getElementById('passwordStrength');
@@ -445,7 +445,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             strengthDiv.innerHTML = `<span class="${strengthClass}">Kekuatan password: ${strengthText}</span>`;
         });
         
-        // Password match checker
+
         document.getElementById('confirmPassword').addEventListener('input', function() {
             const password = document.getElementById('password').value;
             const confirmPassword = this.value;
@@ -463,7 +463,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         });
         
-        // Form submission with loading state
+
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
@@ -480,7 +480,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mendaftar...';
             submitBtn.disabled = true;
             
-            // Re-enable if there's an error (page doesn't redirect)
+
             setTimeout(() => {
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;

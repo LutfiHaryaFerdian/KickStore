@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-// Redirect if user is already logged in
+
 if (isset($_SESSION['user_id'])) {
     if ($_SESSION['role'] == 'admin') {
         header("Location: admin/dashboard.php");
@@ -191,7 +191,7 @@ if (isset($_SESSION['user_id'])) {
             }
         }
         
-        /* Responsive adjustments */
+
         @media (max-width: 768px) {
             .hero-section {
                 background-attachment: scroll;
@@ -215,7 +215,7 @@ if (isset($_SESSION['user_id'])) {
     </style>
 </head>
 <body>
-    <!-- Navigation -->
+
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
             <a class="navbar-brand" href="index.php" style="color: #A0522D;">
@@ -249,7 +249,7 @@ if (isset($_SESSION['user_id'])) {
         </div>
     </nav>
 
-    <!-- Hero Section -->
+
     <section class="hero-section" id="home">
         <div class="container text-center hero-content">
             <h1 class="display-4 mb-4">Selamat Datang di Kick Store</h1>
@@ -266,13 +266,13 @@ if (isset($_SESSION['user_id'])) {
             </div>
         </div>
         
-        <!-- Scroll Indicator -->
+
         <div class="scroll-indicator">
             <i class="fas fa-chevron-down text-white" style="font-size: 1.5rem;"></i>
         </div>
     </section>
 
-    <!-- Features Section -->
+
     <section class="features-section" id="features">
         <div class="container">
             <div class="row text-center mb-5">
@@ -338,7 +338,7 @@ if (isset($_SESSION['user_id'])) {
         </div>
     </section>
 
-    <!-- Footer -->
+
     <footer class="py-5" style="background: linear-gradient(135deg, #A0522D 0%, #8B4513 100%); color: white;">
         <div class="container">
             <div class="row">
@@ -355,7 +355,7 @@ if (isset($_SESSION['user_id'])) {
                         <a href="auth/register.php" class="text-light text-decoration-none mb-2 opacity-75">Daftar</a>
                         <a href="#features" class="text-light text-decoration-none opacity-75">Fitur</a>
                     </div>
-                    <p class="text-light opacity-75 mt-4">© 2024 Kick Store. Hak cipta dilindungi.</p>
+                    <p class="text-light opacity-75 mt-4">© 2024 Kick Store. Hak cipta dilindungi..</p>
                 </div>
             </div>
         </div>
@@ -363,7 +363,7 @@ if (isset($_SESSION['user_id'])) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Smooth scrolling for navigation links
+
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -377,7 +377,7 @@ if (isset($_SESSION['user_id'])) {
             });
         });
 
-        // Navbar background change on scroll
+
         window.addEventListener('scroll', function() {
             const navbar = document.querySelector('.navbar');
             if (window.scrollY > 50) {

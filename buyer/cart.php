@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'buyer') {
 $database = new Database();
 $db = $database->getConnection();
 
-// Get cart items
+
 $query = "SELECT c.*, p.name, p.price, p.image_url, p.stock, p.brand 
           FROM cart c 
           JOIN products p ON c.product_id = p.id 
@@ -19,14 +19,14 @@ $stmt = $db->prepare($query);
 $stmt->execute([$_SESSION['user_id']]);
 $cart_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Calculate totals
+
 $subtotal = 0;
 foreach ($cart_items as $item) {
     $subtotal += $item['price'] * $item['quantity'];
 }
 
-$tax = $subtotal * 0.1; // 10% tax
-$shipping = $subtotal > 500000 ? 0 : 25000; // Free shipping over Rp 500,000
+$tax = $subtotal * 0.1; 
+$shipping = $subtotal > 500000 ? 0 : 25000; 
 $total = $subtotal + $tax + $shipping;
 ?>
 
@@ -204,7 +204,7 @@ $total = $subtotal + $tax + $shipping;
     </style>
 </head>
 <body>
-    <!-- Navigation -->
+
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand fw-bold" href="index.php">
@@ -251,7 +251,7 @@ $total = $subtotal + $tax + $shipping;
     </nav>
 
     <div class="container">
-        <!-- Breadcrumb -->
+
         <nav aria-label="breadcrumb" class="mt-3">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="index.php">Beranda</a></li>
@@ -260,7 +260,7 @@ $total = $subtotal + $tax + $shipping;
         </nav>
 
         <?php if (empty($cart_items)): ?>
-            <!-- Empty Cart -->
+
             <div class="cart-container">
                 <div class="empty-cart">
                     <i class="fas fa-shopping-cart"></i>
@@ -273,7 +273,7 @@ $total = $subtotal + $tax + $shipping;
             </div>
         <?php else: ?>
             <div class="row">
-                <!-- Cart Items -->
+
                 <div class="col-lg-8">
                     <div class="cart-container">
                         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -365,7 +365,7 @@ $total = $subtotal + $tax + $shipping;
                     </div>
                 </div>
 
-                <!-- Order Summary -->
+
                 <div class="col-lg-4">
                     <div class="summary-card">
                         <h5 class="fw-bold mb-4">
@@ -426,7 +426,7 @@ $total = $subtotal + $tax + $shipping;
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Add loading state to quantity buttons
+
         document.querySelectorAll('.quantity-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 if (!this.disabled) {
