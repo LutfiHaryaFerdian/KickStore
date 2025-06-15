@@ -546,21 +546,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             </div>
                         </div>
                         
-                        <div class="payment-option" onclick="selectPayment('e_wallet')">
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="payment_method" value="e_wallet" id="e_wallet">
-                                <label class="form-check-label w-100" for="e_wallet">
-                                    <div class="d-flex align-items-center">
-                                        <i class="fas fa-mobile-alt fa-2x me-3" style="color: #CD853F;"></i>
-                                        <div>
-                                            <h5 class="mb-1">E-Wallet</h5>
-                                            <p class="mb-0 text-muted">Pembayaran melalui OVO, GoPay, DANA, atau LinkAja</p>
-                                        </div>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-                        
                         <!-- Payment Proof Upload (for Bank Transfer) -->
                         <div id="payment_proof_container">
                             <h5 class="mb-3" style="color: #A0522D;">
@@ -672,9 +657,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <div class="col-6">
                                             <div class="fw-bold small"><?php echo htmlspecialchars($item['name']); ?></div>
                                             <small>Qty: <?php echo $item['quantity']; ?></small>
-                                        </div>
-                                        <div class="col-3 text-end">
-                                            <div class="fw-bold">Rp<?php echo number_format($item['price'] * $item['quantity'], 0, ',', '.'); ?></div>
                                         </div>
                                     </div>
                                 </div>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jun 14, 2025 at 07:37 PM
+-- Generation Time: Jun 15, 2025 at 07:56 PM
 -- Server version: 8.0.30
 -- PHP Version: 8.1.10
 
@@ -34,13 +34,6 @@ CREATE TABLE `cart` (
   `quantity` int NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `cart`
---
-
-INSERT INTO `cart` (`id`, `user_id`, `product_id`, `quantity`, `created_at`) VALUES
-(49, 2, 4, 1, '2025-06-14 19:08:42');
 
 -- --------------------------------------------------------
 
@@ -79,22 +72,12 @@ CREATE TABLE `orders` (
   `tax_amount` decimal(10,2) DEFAULT '0.00',
   `shipping_amount` decimal(10,2) DEFAULT '0.00',
   `status` enum('pending','confirmed','shipped','delivered','cancelled') DEFAULT 'pending',
-  `payment_status` enum('pending','paid','failed') DEFAULT 'pending',
+  `payment_status` enum('pending','paid','failed','cancelled','refunded') DEFAULT 'pending',
   `payment_method` varchar(50) DEFAULT NULL,
   `shipping_address` text,
   `notes` text,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `orders`
---
-
-INSERT INTO `orders` (`id`, `user_id`, `total_amount`, `subtotal`, `tax_amount`, `shipping_amount`, `status`, `payment_status`, `payment_method`, `shipping_address`, `notes`, `created_at`) VALUES
-(31, 2, 1980000.00, 0.00, 0.00, 0.00, 'pending', 'pending', 'bank_transfer', 'kandis', NULL, '2025-06-14 17:44:09'),
-(33, 2, 1210000.00, 1100000.00, 110000.00, 0.00, 'pending', 'pending', 'bank_transfer', 'kandis', '', '2025-06-14 18:44:33'),
-(34, 2, 1210000.00, 1100000.00, 110000.00, 0.00, 'pending', 'pending', 'cod', 'kandis', '', '2025-06-14 18:46:36'),
-(35, 2, 1210000.00, 1100000.00, 110000.00, 0.00, 'pending', 'pending', 'bank_transfer', 'kandis', '', '2025-06-14 18:51:11');
 
 -- --------------------------------------------------------
 
@@ -110,15 +93,20 @@ CREATE TABLE `order_items` (
   `price` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- --------------------------------------------------------
+
 --
--- Dumping data for table `order_items`
+-- Table structure for table `order_logs`
 --
 
-INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `quantity`, `price`) VALUES
-(32, 31, 7, 1, 1800000.00),
-(34, 33, 12, 1, 1100000.00),
-(35, 34, 12, 1, 1100000.00),
-(36, 35, 12, 1, 1100000.00);
+CREATE TABLE `order_logs` (
+  `id` int NOT NULL,
+  `order_id` int NOT NULL,
+  `action` varchar(50) NOT NULL,
+  `description` text,
+  `created_by` int DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -139,14 +127,6 @@ CREATE TABLE `payment_proofs` (
   `verified_by` int DEFAULT NULL,
   `verified_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table `payment_proofs`
---
-
-INSERT INTO `payment_proofs` (`id`, `order_id`, `file_path`, `original_filename`, `file_size`, `file_type`, `uploaded_at`, `status`, `admin_notes`, `verified_by`, `verified_at`) VALUES
-(1, 33, 'uploads/payment_proofs/payment_1749926673_684dc311ecb8f.png', '90c16ac4-49d8-4a54-b7c8-eedd49782e05.png', 2308900, 'image/png', '2025-06-14 18:44:33', 'pending', NULL, NULL, NULL),
-(2, 35, 'uploads/payment_proofs/payment_1749927071_684dc49fb7cd1.png', '90c16ac4-49d8-4a54-b7c8-eedd49782e05.png', 2308900, 'image/png', '2025-06-14 18:51:11', 'pending', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -177,10 +157,10 @@ CREATE TABLE `products` (
 INSERT INTO `products` (`id`, `name`, `description`, `price`, `stock`, `category_id`, `image`, `brand`, `size`, `color`, `image_url`, `status`, `created_at`) VALUES
 (1, 'Nike Air Max', '', 2200000.00, 45, 1, NULL, 'Nike', '42', 'Black', 'uploads/products/6846eb620055d_1749478242.png', 'active', '2025-06-01 16:29:08'),
 (2, 'Adidas Campuss', '', 1700000.00, 25, 1, NULL, 'Adidas', '41', 'White', 'uploads/products/6846ebe8844bd_1749478376.png', 'active', '2025-06-01 16:29:08'),
-(4, 'Timberland Boots', 'Durable work boots', 2000000.00, 19, 3, NULL, 'Timberland', '44', 'Brown', 'uploads/products/684dc1477c603_1749926215.png', 'active', '2025-06-01 16:29:08'),
-(6, 'Adidas Spezial', 'Sepatu Classic Adidas', 1700000.00, 87, 1, NULL, 'Adidas', '42', 'Black', 'uploads/products/6846eb2f8955e_1749478191.png', 'active', '2025-06-01 16:55:12'),
+(4, 'Timberland Boots', 'Durable work boots', 2000000.00, 18, 3, NULL, 'Timberland', '44', 'Brown', 'uploads/products/684dc1477c603_1749926215.png', 'active', '2025-06-01 16:29:08'),
+(6, 'Adidas Spezial', 'Sepatu Classic Adidas', 1700000.00, 82, 1, NULL, 'Adidas', '42', 'Black', 'uploads/products/6846eb2f8955e_1749478191.png', 'active', '2025-06-01 16:55:12'),
 (7, 'Adidas Samba', '', 1800000.00, 27, 1, NULL, 'Adidas', '42', 'white', 'uploads/products/6846eaed55a31_1749478125.png', 'active', '2025-06-02 03:21:35'),
-(8, 'Nike P-6000', '', 1500000.00, 47, 1, NULL, 'Nike', '42', 'Black', 'uploads/products/6846f4604b9dd_1749480544.png', 'active', '2025-06-09 14:48:16'),
+(8, 'Nike P-6000', '', 1500000.00, 37, 1, NULL, 'Nike', '42', 'Black', 'uploads/products/6846f4604b9dd_1749480544.png', 'active', '2025-06-09 14:48:16'),
 (12, 'Nike Dunk', '', 1100000.00, 47, 1, NULL, 'Nike', '42', 'Black', 'uploads/products/684dc0ee3e5cf_1749926126.png', 'active', '2025-06-14 18:35:26'),
 (13, 'New Balance 1906 L', '', 2500000.00, 50, 2, NULL, 'New Balance', '42', 'Black', 'uploads/products/684dce5e2fa9a_1749929566.png', 'active', '2025-06-14 19:32:46'),
 (14, 'Crocs Classic Clog Lightning McQueen', '', 2200000.00, 25, 4, NULL, 'Crocs', '42', 'Merah', 'uploads/products/684dcf1379bcb_1749929747.png', 'active', '2025-06-14 19:35:47');
@@ -248,6 +228,15 @@ ALTER TABLE `order_items`
   ADD KEY `product_id` (`product_id`);
 
 --
+-- Indexes for table `order_logs`
+--
+ALTER TABLE `order_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `created_by` (`created_by`),
+  ADD KEY `idx_order_logs_order_id` (`order_id`),
+  ADD KEY `idx_order_logs_created_at` (`created_at`);
+
+--
 -- Indexes for table `payment_proofs`
 --
 ALTER TABLE `payment_proofs`
@@ -278,7 +267,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `cart`
 --
 ALTER TABLE `cart`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
 
 --
 -- AUTO_INCREMENT for table `categories`
@@ -290,19 +279,25 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+
+--
+-- AUTO_INCREMENT for table `order_logs`
+--
+ALTER TABLE `order_logs`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `payment_proofs`
 --
 ALTER TABLE `payment_proofs`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `products`
@@ -339,6 +334,13 @@ ALTER TABLE `orders`
 ALTER TABLE `order_items`
   ADD CONSTRAINT `order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`),
   ADD CONSTRAINT `order_items_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`);
+
+--
+-- Constraints for table `order_logs`
+--
+ALTER TABLE `order_logs`
+  ADD CONSTRAINT `order_logs_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `order_logs_ibfk_2` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `payment_proofs`
