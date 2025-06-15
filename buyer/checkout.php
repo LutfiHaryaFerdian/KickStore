@@ -137,10 +137,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $db->beginTransaction();
         
         try {
+            // Determine payment status based on payment method
+            $payment_status = 'pending'; // Default for all methods
+            if ($payment_method == 'cod') {
+                $payment_status = 'pending'; // Will be paid on delivery
+            } elseif ($payment_method == 'bank_transfer') {
+                $payment_status = 'pending'; // Will be verified by admin
+            } elseif ($payment_method == 'e_wallet') {
+                $payment_status = 'pending'; // Will be processed
+            }
+            
             // Create order
             $order_query = "INSERT INTO orders (user_id, subtotal, tax_amount, shipping_amount, total_amount, status, payment_method, payment_status, shipping_address, notes, created_at) 
                             VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?, CURRENT_TIMESTAMP)";
-            $payment_status = ($payment_method == 'bank_transfer') ? 'pending' : 'pending';
             $order_stmt = $db->prepare($order_query);
             $order_result = $order_stmt->execute([
                 $user_id, 
@@ -531,6 +540,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                         <div>
                                             <h5 class="mb-1">Transfer Bank</h5>
                                             <p class="mb-0 text-muted">Transfer ke rekening bank kami dan upload bukti pembayaran</p>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-option" onclick="selectPayment('e_wallet')">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment_method" value="e_wallet" id="e_wallet">
+                                <label class="form-check-label w-100" for="e_wallet">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-mobile-alt fa-2x me-3" style="color: #CD853F;"></i>
+                                        <div>
+                                            <h5 class="mb-1">E-Wallet</h5>
+                                            <p class="mb-0 text-muted">Pembayaran melalui OVO, GoPay, DANA, atau LinkAja</p>
                                         </div>
                                     </div>
                                 </label>
